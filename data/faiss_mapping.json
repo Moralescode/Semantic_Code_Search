@@ -1,0 +1,1096 @@
+{
+  "0": {
+    "name": "validate_ci_phone_number",
+    "language": "python",
+    "docstring": "Valide un numéro de téléphone mobile en Côte d'Ivoire selon le plan de numérotation à 10 chiffres (Orange: 07, MTN: 05, Moov: 01).",
+    "code": "def validate_ci_phone_number(phone_str: str) -> bool:\n    import re\n    # Nettoyage des espaces et tirets\n    cleaned = re.sub(r'\\s+|-', '', phone_str)\n    # Pattern pour 10 chiffres commençant par 01, 05, 07\n    pattern = r'^(?:\\+225|225)?(01|05|07)\\d{8}$'\n    return bool(re.match(pattern, cleaned))",
+    "arguments": [
+      "phone_str"
+    ]
+  },
+  "1": {
+    "name": "validateCIPhone",
+    "language": "javascript",
+    "docstring": "Check if a phone number matches the Ivorian 10-digit format for Orange, MTN, and Moov.",
+    "code": "function validateCIPhone(phoneStr) {\n  const cleaned = phoneStr.replace(/\\s+|-/g, '');\n  const pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/;\n  return pattern.test(cleaned);\n}",
+    "arguments": [
+      "phoneStr"
+    ]
+  },
+  "2": {
+    "name": "check_phone_number_valid",
+    "language": "python",
+    "docstring": "Vérifie si le numéro saisi correspond aux indicatifs de Côte d'Ivoire (01, 05, 07) avec 10 chiffres au total.",
+    "code": "def check_phone_number_valid(num):\n    # Doublon fonctionnel créé par un autre développeur\n    import re\n    num_clean = str(num).replace(' ', '').replace('-', '')\n    if len(num_clean) == 10 and num_clean[:2] in ['01', '05', '07']:\n        return True\n    return False",
+    "arguments": [
+      "num"
+    ]
+  },
+  "3": {
+    "name": "calculate_ci_tva",
+    "language": "python",
+    "docstring": "Calcule la TVA (Taux normal de 18% en Côte d'Ivoire) applicable sur un montant hors taxe.",
+    "code": "def calculate_ci_tva(amount_ht: float) -> float:\n    TVA_RATE = 0.18\n    return round(amount_ht * TVA_RATE, 2)",
+    "arguments": [
+      "amount_ht"
+    ]
+  },
+  "4": {
+    "name": "format_currency_xof",
+    "language": "python",
+    "docstring": "Formate un montant numérique sous forme de monnaie Franc CFA (XOF) avec séparateur de milliers.",
+    "code": "def format_currency_xof(amount: float) -> str:\n    rounded = int(round(amount))\n    return f\"{rounded:,}\".replace(\",\", \" \") + \" FCFA\" ",
+    "arguments": [
+      "amount"
+    ]
+  },
+  "5": {
+    "name": "formatXOF",
+    "language": "javascript",
+    "docstring": "Format integer amount to West African Franc (XOF) currency string.",
+    "code": "function formatXOF(amount) {\n  const rounded = Math.round(amount);\n  return new Intl.NumberFormat('fr-CI', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(rounded);\n}",
+    "arguments": [
+      "amount"
+    ]
+  },
+  "6": {
+    "name": "parse_csv_transactions",
+    "language": "python",
+    "docstring": "Analyse un fichier CSV contenant des transactions Wave ou Mobile Money et retourne une liste de dictionnaires structurés.",
+    "code": "def parse_csv_transactions(csv_filepath: str) -> list:\n    import csv\n    transactions = []\n    with open(csv_filepath, mode='r', encoding='utf-8') as f:\n        reader = csv.DictReader(f)\n        for row in reader:\n            transactions.append({\n                \"id\": row.get(\"transaction_id\"),\n                \"amount\": float(row.get(\"amount\", 0)),\n                \"sender\": row.get(\"sender\"),\n                \"receiver\": row.get(\"receiver\"),\n                \"date\": row.get(\"timestamp\")\n            })\n    return transactions",
+    "arguments": [
+      "csv_filepath"
+    ]
+  },
+  "7": {
+    "name": "generate_hmac_signature",
+    "language": "python",
+    "docstring": "Génère une signature HMAC-SHA256 pour sécuriser les échanges d'API de paiement avec les passerelles bancaires.",
+    "code": "def generate_hmac_signature(secret_key: str, payload_str: str) -> str:\n    import hmac\n    import hashlib\n    key = secret_key.encode('utf-8')\n    message = payload_str.encode('utf-8')\n    sig = hmac.new(key, message, hashlib.sha256)\n    return sig.hexdigest()",
+    "arguments": [
+      "secret_key",
+      "payload_str"
+    ]
+  },
+  "8": {
+    "name": "YouTube.get_vid_from_url",
+    "language": "python",
+    "docstring": "Extracts video ID from URL.",
+    "code": "def get_vid_from_url(url):\n        \"\"\"Extracts video ID from URL.\n        \"\"\"\n        return match1(url, r'youtu\\.be/([^?/]+)') or \\\n          match1(url, r'youtube\\.com/embed/([^/?]+)') or \\\n          match1(url, r'youtube\\.com/v/([^/?]+)') or \\\n          match1(url, r'youtube\\.com/watch/([^/?]+)') or \\\n          parse_query_param(url, 'v') or \\\n          parse_query_param(parse_query_param(url, 'u'), 'v')",
+    "arguments": [
+      "def",
+      "get_vid_from_url",
+      "("
+    ]
+  },
+  "9": {
+    "name": "sina_xml_to_url_list",
+    "language": "python",
+    "docstring": "str->list Convert XML to URL List. From Biligrab.",
+    "code": "def sina_xml_to_url_list(xml_data):\n    \"\"\"str->list\n    Convert XML to URL List.\n    From Biligrab.\n    \"\"\"\n    rawurl = []\n    dom = parseString(xml_data)\n    for node in dom.getElementsByTagName('durl'):\n        url = node.getElementsByTagName('url')[0]\n        rawurl.append(url.childNodes[0].data)\n    return rawurl",
+    "arguments": [
+      "def",
+      "sina_xml_to_url_list",
+      "("
+    ]
+  },
+  "10": {
+    "name": "makeMimi",
+    "language": "python",
+    "docstring": "From http://cdn37.atwikiimg.com/sitescript/pub/dksitescript/FC2.site.js Also com.hps.util.fc2.FC2EncrptUtil.makeMimiLocal L110",
+    "code": "def makeMimi(upid):\n    \"\"\"From http://cdn37.atwikiimg.com/sitescript/pub/dksitescript/FC2.site.js\n    Also com.hps.util.fc2.FC2EncrptUtil.makeMimiLocal\n    L110\"\"\"\n    strSeed = \"gGddgPfeaf_gzyr\"\n    prehash = upid + \"_\" + strSeed\n    return md5(prehash.encode('utf-8')).hexdigest()",
+    "arguments": [
+      "def",
+      "makeMimi",
+      "("
+    ]
+  },
+  "11": {
+    "name": "fc2video_download",
+    "language": "python",
+    "docstring": "wrapper",
+    "code": "def fc2video_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):\n    \"\"\"wrapper\"\"\"\n    hostname = urlparse(url).hostname\n    if not ('fc2.com' in hostname or 'xiaojiadianvideo.asia' in hostname):\n        return False\n    upid = match1(url, r'.+/content/(\\w+)')\n    fc2video_download_by_upid(upid, output_dir, merge, info_only)",
+    "arguments": [
+      "def",
+      "fc2video_download",
+      "("
+    ]
+  },
+  "12": {
+    "name": "dailymotion_download",
+    "language": "python",
+    "docstring": "Downloads Dailymotion videos by URL.",
+    "code": "def dailymotion_download(url, output_dir='.', merge=True, info_only=False, **kwargs):\n    \"\"\"Downloads Dailymotion videos by URL.\n    \"\"\"\n    html = get_content(rebuilt_url(url))\n    info = json.loads(match1(html, r'qualities\":({.+?}),\"'))\n    title = match1(html, r'\"video_title\"\\s*:\\s*\"([^\"]+)\"') or \\\n            match1(html, r'\"title\"\\s*:\\s*\"([^\"]+)\"')\n    title = unicodize(title)\n    for quality in ['1080','720','480','380','240','144','auto']:\n        try:\n            real_url = info[quality][1][\"url\"]\n            if real_url:\n                break\n        except KeyError:\n            pass\n    mime, ext, size = url_info(real_url)\n    print_info(site_info, title, mime, size)\n    if not info_only:\n        download_urls([real_url], title, ext, size, output_dir=output_dir, merge=merge)",
+    "arguments": [
+      "def",
+      "dailymotion_download",
+      "("
+    ]
+  },
+  "13": {
+    "name": "dictify",
+    "language": "python",
+    "docstring": "http://stackoverflow.com/a/30923963/2946714",
+    "code": "def dictify(r,root=True):\n    \"\"\"http://stackoverflow.com/a/30923963/2946714\"\"\"\n    if root:\n        return {r.tag : dictify(r, False)}\n    d=copy(r.attrib)\n    if r.text:\n        d[\"_text\"]=r.text\n    for x in r.findall(\"./*\"):\n        if x.tag not in d:\n            d[x.tag]=[]\n        d[x.tag].append(dictify(x,False))\n    return d",
+    "arguments": [
+      "def",
+      "dictify",
+      "("
+    ]
+  },
+  "14": {
+    "name": "ucas_download_single",
+    "language": "python",
+    "docstring": "video page",
+    "code": "def ucas_download_single(url, output_dir = '.', merge = False, info_only = False, **kwargs):\n    '''video page'''\n    html = get_content(url)\n    resourceID = re.findall( r'resourceID\":\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', html)[0]\n    assert resourceID != '', 'Cannot find resourceID!'\n    title = match1(html, r'<div class=\"bc-h\">(.+)</div>')\n    url_lists = _ucas_get_url_lists_by_resourceID(resourceID)\n    assert url_lists, 'Cannot find any URL of such class!'\n    for k, part in enumerate(url_lists):\n        part_title = title + '_' + str(k)\n        print_info(site_info, part_title, 'flv', 0)\n        if not info_only:\n            download_urls(part, part_title, 'flv', total_size=None, output_dir=output_dir, merge=merge)",
+    "arguments": [
+      "def",
+      "ucas_download_single",
+      "("
+    ]
+  },
+  "15": {
+    "name": "ucas_download_playlist",
+    "language": "python",
+    "docstring": "course page",
+    "code": "def ucas_download_playlist(url, output_dir = '.', merge = False, info_only = False, **kwargs):\n    '''course page'''\n    html = get_content(url)\n    parts = re.findall( r'(getplaytitle.do\\?.+)\"', html)\n    assert parts, 'No part found!'\n    for part_path in parts:\n        ucas_download('http://v.ucas.ac.cn/course/' + part_path, output_dir=output_dir, merge=merge, info_only=info_only)",
+    "arguments": [
+      "def",
+      "ucas_download_playlist",
+      "("
+    ]
+  },
+  "16": {
+    "name": "sina_download_by_vid",
+    "language": "python",
+    "docstring": "Downloads a Sina video by its unique vid. http://video.sina.com.cn/",
+    "code": "def sina_download_by_vid(vid, title=None, output_dir='.', merge=True, info_only=False):\n    \"\"\"Downloads a Sina video by its unique vid.\n    http://video.sina.com.cn/\n    \"\"\"\n    xml = api_req(vid)\n    urls, name, size = video_info(xml)\n    if urls is None:\n        log.wtf(name)\n    title = name\n    print_info(site_info, title, 'flv', size)\n    if not info_only:\n        download_urls(urls, title, 'flv', size, output_dir = output_dir, merge = merge)",
+    "arguments": [
+      "def",
+      "sina_download_by_vid",
+      "("
+    ]
+  },
+  "17": {
+    "name": "sina_download_by_vkey",
+    "language": "python",
+    "docstring": "Downloads a Sina video by its unique vkey. http://video.sina.com/",
+    "code": "def sina_download_by_vkey(vkey, title=None, output_dir='.', merge=True, info_only=False):\n    \"\"\"Downloads a Sina video by its unique vkey.\n    http://video.sina.com/\n    \"\"\"\n    url = 'http://video.sina.com/v/flvideo/%s_0.flv' % vkey\n    type, ext, size = url_info(url)\n    print_info(site_info, title, 'flv', size)\n    if not info_only:\n        download_urls([url], title, 'flv', size, output_dir = output_dir, merge = merge)",
+    "arguments": [
+      "def",
+      "sina_download_by_vkey",
+      "("
+    ]
+  },
+  "18": {
+    "name": "sina_download",
+    "language": "python",
+    "docstring": "Downloads Sina videos by URL.",
+    "code": "def sina_download(url, output_dir='.', merge=True, info_only=False, **kwargs):\n    \"\"\"Downloads Sina videos by URL.\n    \"\"\"\n    if 'news.sina.com.cn/zxt' in url:\n        sina_zxt(url, output_dir=output_dir, merge=merge, info_only=info_only, **kwargs)\n        return\n    vid = match1(url, r'vid=(\\d+)')\n    if vid is None:\n        video_page = get_content(url)\n        vid = hd_vid = match1(video_page, r'hd_vid\\s*:\\s*\\'([^\\']+)\\'')\n        if hd_vid == '0':\n            vids = match1(video_page, r'[^\\w]vid\\s*:\\s*\\'([^\\']+)\\'').split('|')\n            vid = vids[-1]\n    if vid is None:\n        vid = match1(video_page, r'vid:\"?(\\d+)\"?')\n    if vid:\n        sina_download_by_vid(vid, output_dir=output_dir, merge=merge, info_only=info_only)\n    else:\n        vkey = match1(video_page, r'vkey\\s*:\\s*\"([^\"]+)\"')\n        if vkey is None:\n            vid = match1(url, r'#(\\d+)')\n            sina_download_by_vid(vid, output_dir=output_dir, merge=merge, info_only=info_only)\n            return\n        title = match1(video_page, r'title\\s*:\\s*\"([^\"]+)\"')\n        sina_download_by_vkey(vkey, title=title, output_dir=output_dir, merge=merge, info_only=info_only)",
+    "arguments": [
+      "def",
+      "sina_download",
+      "("
+    ]
+  },
+  "19": {
+    "name": "yixia_download",
+    "language": "python",
+    "docstring": "wrapper",
+    "code": "def yixia_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):\n    \"\"\"wrapper\"\"\"\n    hostname = urlparse(url).hostname\n    if 'n.miaopai.com' == hostname: \n        smid = match1(url, r'n\\.miaopai\\.com/media/([^.]+)') \n        miaopai_download_by_smid(smid, output_dir, merge, info_only)\n        return\n    elif 'miaopai.com' in hostname:  #Miaopai\n        yixia_download_by_scid = yixia_miaopai_download_by_scid\n        site_info = \"Yixia Miaopai\"\n        scid = match1(url, r'miaopai\\.com/show/channel/([^.]+)\\.htm') or \\\n               match1(url, r'miaopai\\.com/show/([^.]+)\\.htm') or \\\n               match1(url, r'm\\.miaopai\\.com/show/channel/([^.]+)\\.htm') or \\\n               match1(url, r'm\\.miaopai\\.com/show/channel/([^.]+)')\n    elif 'xiaokaxiu.com' in hostname:  #Xiaokaxiu\n        yixia_download_by_scid = yixia_xiaokaxiu_download_by_scid\n        site_info = \"Yixia Xiaokaxiu\"\n        if re.match(r'http://v.xiaokaxiu.com/v/.+\\.html', url):  #PC\n            scid = match1(url, r'http://v.xiaokaxiu.com/v/(.+)\\.html')\n        elif re.match(r'http://m.xiaokaxiu.com/m/.+\\.html', url):  #Mobile\n            scid = match1(url, r'http://m.xiaokaxiu.com/m/(.+)\\.html')\n    else:\n        pass\n    yixia_download_by_scid(scid, output_dir, merge, info_only)",
+    "arguments": [
+      "def",
+      "yixia_download",
+      "("
+    ]
+  },
+  "20": {
+    "name": "veoh_download",
+    "language": "python",
+    "docstring": "Get item_id",
+    "code": "def veoh_download(url, output_dir = '.', merge = False, info_only = False, **kwargs):\n    '''Get item_id'''\n    if re.match(r'http://www.veoh.com/watch/\\w+', url):\n        item_id = match1(url, r'http://www.veoh.com/watch/(\\w+)')\n    elif re.match(r'http://www.veoh.com/m/watch.php\\?v=\\.*', url):\n        item_id = match1(url, r'http://www.veoh.com/m/watch.php\\?v=(\\w+)')\n    else:\n        raise NotImplementedError('Cannot find item ID')\n    veoh_download_by_id(item_id, output_dir = '.', merge = False, info_only = info_only, **kwargs)",
+    "arguments": [
+      "def",
+      "veoh_download",
+      "("
+    ]
+  },
+  "21": {
+    "name": "veoh_download_by_id",
+    "language": "python",
+    "docstring": "Source: Android mobile",
+    "code": "def veoh_download_by_id(item_id, output_dir = '.', merge = False, info_only = False, **kwargs):\n    \"\"\"Source: Android mobile\"\"\"\n    webpage_url = 'http://www.veoh.com/m/watch.php?v={item_id}&quality=1'.format(item_id = item_id)\n    a = get_content(webpage_url, decoded=True)\n    url = match1(a, r'<source src=\"(.*?)\\\"\\W')\n    title = match1(a, r'<meta property=\"og:title\" content=\"([^\"]*)\"')\n    type_, ext, size = url_info(url)\n    print_info(site_info, title, type_, size)\n    if not info_only:\n        download_urls([url], title, ext, total_size=None, output_dir=output_dir, merge=merge)",
+    "arguments": [
+      "def",
+      "veoh_download_by_id",
+      "("
+    ]
+  },
+  "22": {
+    "name": "BokeCC.download_by_id",
+    "language": "python",
+    "docstring": "self, str->None Keyword arguments: self: self vid: The video ID for BokeCC cloud, something like FE3BB999594978049C33DC5901307461 Calls the prepare() to download the video. If no title is provided, this method shall try to find a proper title with the information providin within the returned content of the API.",
+    "code": "def download_by_id(self, vid = '', title = None, output_dir='.', merge=True, info_only=False,**kwargs):\n        \"\"\"self, str->None\n        Keyword arguments:\n        self: self\n        vid: The video ID for BokeCC cloud, something like\n        FE3BB999594978049C33DC5901307461\n        Calls the prepare() to download the video.\n        If no title is provided, this method shall try to find a proper title\n        with the information providin within the\n        returned content of the API.\"\"\"\n        assert vid\n        self.prepare(vid = vid, title = title, **kwargs)\n        self.extract(**kwargs)\n        self.download(output_dir = output_dir, \n                    merge = merge, \n                    info_only = info_only, **kwargs)",
+    "arguments": [
+      "def",
+      "download_by_id",
+      "("
+    ]
+  },
+  "23": {
+    "name": "QiE.get_vid_from_url",
+    "language": "python",
+    "docstring": "Extracts video ID from live.qq.com.",
+    "code": "def get_vid_from_url(self, url):\n        \"\"\"Extracts video ID from live.qq.com.\n        \"\"\"\n        hit = re.search(r'live.qq.com/(\\d+)', url)\n        if hit is not None:\n            return hit.group(1)\n        hit = re.search(r'live.qq.com/directory/match/(\\d+)', url)\n        if hit is not None:\n            return self.get_room_id_from_url(hit.group(1))\n        html = get_content(url)\n        room_id = match1(html, r'room_id\\\":(\\d+)')\n        if room_id is None:\n            log.wtf('Unknown page {}'.format(url))\n        return room_id",
+    "arguments": [
+      "def",
+      "get_vid_from_url",
+      "("
+    ]
+  },
+  "24": {
+    "name": "sprint",
+    "language": "python",
+    "docstring": "Format text with color or other effects into ANSI escaped string.",
+    "code": "def sprint(text, *colors):\n    \"\"\"Format text with color or other effects into ANSI escaped string.\"\"\"\n    return \"\\33[{}m{content}\\33[{}m\".format(\";\".join([str(color) for color in colors]), RESET, content=text) if IS_ANSI_TERMINAL and colors else text",
+    "arguments": [
+      "def",
+      "sprint",
+      "("
+    ]
+  },
+  "25": {
+    "name": "print_log",
+    "language": "python",
+    "docstring": "Print a log message to standard error.",
+    "code": "def print_log(text, *colors):\n    \"\"\"Print a log message to standard error.\"\"\"\n    sys.stderr.write(sprint(\"{}: {}\".format(script_name, text), *colors) + \"\\n\")",
+    "arguments": [
+      "def",
+      "print_log",
+      "("
+    ]
+  },
+  "26": {
+    "name": "e",
+    "language": "python",
+    "docstring": "Print an error log message.",
+    "code": "def e(message, exit_code=None):\n    \"\"\"Print an error log message.\"\"\"\n    print_log(message, YELLOW, BOLD)\n    if exit_code is not None:\n        sys.exit(exit_code)",
+    "arguments": [
+      "def",
+      "e",
+      "("
+    ]
+  },
+  "27": {
+    "name": "wtf",
+    "language": "python",
+    "docstring": "What a Terrible Failure!",
+    "code": "def wtf(message, exit_code=1):\n    \"\"\"What a Terrible Failure!\"\"\"\n    print_log(message, RED, BOLD)\n    if exit_code is not None:\n        sys.exit(exit_code)",
+    "arguments": [
+      "def",
+      "wtf",
+      "("
+    ]
+  },
+  "28": {
+    "name": "detect_os",
+    "language": "python",
+    "docstring": "Detect operating system.",
+    "code": "def detect_os():\n    \"\"\"Detect operating system.\n    \"\"\"\n    syst = system().lower()\n    os = 'unknown'\n    if 'cygwin' in syst:\n        os = 'cygwin'\n    elif 'darwin' in syst:\n        os = 'mac'\n    elif 'linux' in syst:\n        os = 'linux'\n        try:\n            with open('/proc/version', 'r') as f:\n                if 'microsoft' in f.read().lower():\n                    os = 'wsl'\n        except: pass\n    elif 'windows' in syst:\n        os = 'windows'\n    elif 'bsd' in syst:\n        os = 'bsd'\n    return os",
+    "arguments": [
+      "def",
+      "detect_os",
+      "("
+    ]
+  },
+  "29": {
+    "name": "miaopai_download_by_fid",
+    "language": "python",
+    "docstring": "Source: Android mobile",
+    "code": "def miaopai_download_by_fid(fid, output_dir = '.', merge = False, info_only = False, **kwargs):\n    '''Source: Android mobile'''\n    page_url = 'http://video.weibo.com/show?fid=' + fid + '&type=mp4'\n    mobile_page = get_content(page_url, headers=fake_headers_mobile)\n    url = match1(mobile_page, r'<video id=.*?src=[\\'\"](.*?)[\\'\"]\\W')\n    if url is None:\n        wb_mp = re.search(r'<script src=([\\'\"])(.+?wb_mp\\.js)\\1>', mobile_page).group(2)\n        return miaopai_download_by_wbmp(wb_mp, fid, output_dir=output_dir, merge=merge,\n                                        info_only=info_only, total_size=None, **kwargs)\n    title = match1(mobile_page, r'<title>((.|\\n)+?)</title>')\n    if not title:\n        title = fid\n    title = title.replace('\\n', '_')\n    ext, size = 'mp4', url_info(url)[2]\n    print_info(site_info, title, ext, size)\n    if not info_only:\n        download_urls([url], title, ext, total_size=None, output_dir=output_dir, merge=merge)",
+    "arguments": [
+      "def",
+      "miaopai_download_by_fid",
+      "("
+    ]
+  },
+  "30": {
+    "name": "vimeo_download_by_channel",
+    "language": "python",
+    "docstring": "str->None",
+    "code": "def vimeo_download_by_channel(url, output_dir='.', merge=False, info_only=False, **kwargs):\n    \"\"\"str->None\"\"\"\n    channel_id = match1(url, r'http://vimeo.com/channels/(\\w+)')\n    vimeo_download_by_channel_id(channel_id, output_dir, merge, info_only, **kwargs)",
+    "arguments": [
+      "def",
+      "vimeo_download_by_channel",
+      "("
+    ]
+  },
+  "31": {
+    "name": "vimeo_download_by_channel_id",
+    "language": "python",
+    "docstring": "str/int->None",
+    "code": "def vimeo_download_by_channel_id(channel_id, output_dir='.', merge=False, info_only=False, **kwargs):\n    \"\"\"str/int->None\"\"\"\n    html = get_content('https://api.vimeo.com/channels/{channel_id}/videos?access_token={access_token}'.format(channel_id=channel_id, access_token=access_token))\n    data = loads(html)\n    id_list = []\n    for i in data['data']:\n        id_list.append(match1(i['uri'], r'/videos/(\\w+)'))\n    for id in id_list:\n        try:\n            vimeo_download_by_id(id, None, output_dir, merge, info_only, **kwargs)\n        except urllib.error.URLError as e:\n            log.w('{} failed with {}'.format(id, e))",
+    "arguments": [
+      "def",
+      "vimeo_download_by_channel_id",
+      "("
+    ]
+  },
+  "32": {
+    "name": "vimeo_download_by_id",
+    "language": "python",
+    "docstring": "try: # normal Vimeo video html = get_content('https://vimeo.com/' + id) cfg_patt = r'clip_page_config\\s*=\\s*(\\{.+?\\});' cfg = json.loads(match1(html, cfg_patt)) video_page = get_content(cfg['player']['config_url'], headers=fake_headers) title = cfg['clip']['title'] info = loads(video_page) except: # embedded player - referer may be required if 'referer' in kwargs: fake_headers['Referer'] = kwargs['referer'] video_page = get_content('http://player.vimeo.com/video/%s' % id, headers=fake_headers) title = r1(r'<title>([^<]+)</title>', video_page) info = loads(match1(video_page, r'var t=(\\{.+?\\});')) streams = info['request']['files']['progressive'] streams = sorted(streams, key=lambda i: i['height']) url = streams[-1]['url'] type, ext, size = url_info(url, faker=True) print_info(site_info, title, type, size) if not info_only: download_urls([url], title, ext, size, output_dir, merge=merge, faker=True)",
+    "code": "def vimeo_download_by_id(id, title=None, output_dir='.', merge=True, info_only=False, **kwargs):\n    '''\n    try:\n        html = get_content('https://vimeo.com/' + id)\n        cfg_patt = r'clip_page_config\\s*=\\s*(\\{.+?\\});'\n        cfg = json.loads(match1(html, cfg_patt))\n        video_page = get_content(cfg['player']['config_url'], headers=fake_headers)\n        title = cfg['clip']['title']\n        info = loads(video_page)\n    except:\n        if 'referer' in kwargs:\n            fake_headers['Referer'] = kwargs['referer']\n        video_page = get_content('http://player.vimeo.com/video/%s' % id, headers=fake_headers)\n        title = r1(r'<title>([^<]+)</title>', video_page)\n        info = loads(match1(video_page, r'var t=(\\{.+?\\});'))\n    streams = info['request']['files']['progressive']\n    streams = sorted(streams, key=lambda i: i['height'])\n    url = streams[-1]['url']\n    type, ext, size = url_info(url, faker=True)\n    print_info(site_info, title, type, size)\n    if not info_only:\n        download_urls([url], title, ext, size, output_dir, merge=merge, faker=True)\n    '''\n    site = VimeoExtractor()\n    site.download_by_vid(id, info_only=info_only, output_dir=output_dir, merge=merge, **kwargs)",
+    "arguments": [
+      "def",
+      "vimeo_download_by_id",
+      "("
+    ]
+  },
+  "33": {
+    "name": "ckplayer_get_info_by_xml",
+    "language": "python",
+    "docstring": "str->dict Information for CKPlayer API content.",
+    "code": "def ckplayer_get_info_by_xml(ckinfo):\n    \"\"\"str->dict\n    Information for CKPlayer API content.\"\"\"\n    e = ET.XML(ckinfo)\n    video_dict = {'title': '',\n                  'links': [],\n                  'size': 0,\n                  'flashvars': '',}\n    dictified = dictify(e)['ckplayer']\n    if 'info' in dictified:\n        if '_text' in dictified['info'][0]['title'][0]:  #title\n            video_dict['title'] = dictified['info'][0]['title'][0]['_text'].strip()\n    if '_text' in dictified['video'][0]['size'][0]:  #size exists for 1 piece\n        video_dict['size'] = sum([int(i['size'][0]['_text']) for i in dictified['video']])\n    if '_text' in dictified['video'][0]['file'][0]:  #link exist\n        video_dict['links'] = [i['file'][0]['_text'].strip() for i in dictified['video']]\n    if '_text' in dictified['flashvars'][0]:\n        video_dict['flashvars'] = dictified['flashvars'][0]['_text'].strip()\n    return video_dict",
+    "arguments": [
+      "def",
+      "ckplayer_get_info_by_xml",
+      "("
+    ]
+  },
+  "34": {
+    "name": "get_video_url_from_video_id",
+    "language": "python",
+    "docstring": "Splicing URLs according to video ID to get video details",
+    "code": "def get_video_url_from_video_id(video_id):\n    \"\"\"Splicing URLs according to video ID to get video details\"\"\"\n    data = [\"\"] * 256\n    for index, _ in enumerate(data):\n        t = index\n        for i in range(8):\n            t = -306674912 ^ unsigned_right_shitf(t, 1) if 1 & t else unsigned_right_shitf(t, 1)\n        data[index] = t\n    def tmp():\n        rand_num = random.random()\n        path = \"/video/urls/v/1/toutiao/mp4/{video_id}?r={random_num}\".format(video_id=video_id,\n                                                                              random_num=str(rand_num)[2:])\n        e = o = r = -1\n        i, a = 0, len(path)\n        while i < a:\n            e = ord(path[i])\n            i += 1\n            if e < 128:\n                r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ e)]\n            else:\n                if e < 2048:\n                    r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (192 | e >> 6 & 31))]\n                    r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (128 | 63 & e))]\n                else:\n                    if 55296 <= e < 57344:\n                        e = (1023 & e) + 64\n                        i += 1\n                        o = 1023 & t.url(i)\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (240 | e >> 8 & 7))]\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (128 | e >> 2 & 63))]\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (128 | o >> 6 & 15 | (3 & e) << 4))]\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (128 | 63 & o))]\n                    else:\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (224 | e >> 12 & 15))]\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (128 | e >> 6 & 63))]\n                        r = unsigned_right_shitf(r, 8) ^ data[255 & (r ^ (128 | 63 & e))]\n        return \"https://ib.365yg.com{path}&s={param}\".format(path=path, param=unsigned_right_shitf(r ^ -1, 0))\n    while 1:\n        url = tmp()\n        if url.split(\"=\")[-1][0] != \"-\":  # 参数s不能为负数\n            return url",
+    "arguments": [
+      "def",
+      "get_video_url_from_video_id",
+      "("
+    ]
+  },
+  "35": {
+    "name": "MGTV.get_vid_from_url",
+    "language": "python",
+    "docstring": "Extracts video ID from URL.",
+    "code": "def get_vid_from_url(url):\n        \"\"\"Extracts video ID from URL.\n        \"\"\"\n        vid = match1(url, 'https?://www.mgtv.com/(?:b|l)/\\d+/(\\d+).html')\n        if not vid:\n            vid = match1(url, 'https?://www.mgtv.com/hz/bdpz/\\d+/(\\d+).html')\n        return vid",
+    "arguments": [
+      "def",
+      "get_vid_from_url",
+      "("
+    ]
+  },
+  "36": {
+    "name": "MGTV.get_mgtv_real_url",
+    "language": "python",
+    "docstring": "str->list of str Give you the real URLs.",
+    "code": "def get_mgtv_real_url(url):\n        \"\"\"str->list of str\n        Give you the real URLs.\"\"\"\n        content = loads(get_content(url))\n        m3u_url = content['info']\n        split = urlsplit(m3u_url)\n        base_url = \"{scheme}://{netloc}{path}/\".format(scheme = split[0],\n                                                      netloc = split[1],\n                                                      path = dirname(split[2]))\n        content = get_content(content['info'])  #get the REAL M3U url, maybe to be changed later?\n        segment_list = []\n        segments_size = 0\n        for i in content.split():\n            if not i.startswith('#'):  #not the best way, better we use the m3u8 package\n                segment_list.append(base_url + i)\n            elif i.startswith('#EXT-MGTV-File-SIZE:'):\n                segments_size += int(i[i.rfind(':')+1:])\n        return m3u_url, segments_size, segment_list",
+    "arguments": [
+      "def",
+      "get_mgtv_real_url",
+      "("
+    ]
+  },
+  "37": {
+    "name": "get_head",
+    "language": "python",
+    "docstring": "Get (branch, commit) from HEAD of a git repo.",
+    "code": "def get_head(repo_path):\n    \"\"\"Get (branch, commit) from HEAD of a git repo.\"\"\"\n    try:\n        ref = open(os.path.join(repo_path, '.git', 'HEAD'), 'r').read().strip()[5:].split('/')\n        branch = ref[-1]\n        commit = open(os.path.join(repo_path, '.git', *ref), 'r').read().strip()[:7]\n        return branch, commit\n    except:\n        return None",
+    "arguments": [
+      "def",
+      "get_head",
+      "("
+    ]
+  },
+  "38": {
+    "name": "legitimize",
+    "language": "python",
+    "docstring": "Converts a string to a valid filename.",
+    "code": "def legitimize(text, os=detect_os()):\n    \"\"\"Converts a string to a valid filename.\n    \"\"\"\n    text = text.translate({\n        0: None,\n        ord('/'): '-',\n        ord('|'): '-',\n    })\n    if os == 'windows' or os == 'cygwin' or os == 'wsl':\n        text = text.translate({\n            ord(':'): '-',\n            ord('*'): '-',\n            ord('?'): '-',\n            ord('\\\\'): '-',\n            ord('\\\"'): '\\'',\n            ord('+'): '-',\n            ord('<'): '-',\n            ord('>'): '-',\n            ord('['): '(',\n            ord(']'): ')',\n            ord('\\t'): ' ',\n        })\n    else:\n        if os == 'mac':\n            text = text.translate({\n                ord(':'): '-',\n            })\n        if text.startswith(\".\"):\n            text = text[1:]\n    text = text[:80] # Trim to 82 Unicode characters long\n    return text",
+    "arguments": [
+      "def",
+      "legitimize",
+      "("
+    ]
+  },
+  "39": {
+    "name": "get_terminal_size",
+    "language": "python",
+    "docstring": "Get (width, height) of the current terminal.",
+    "code": "def get_terminal_size():\n    \"\"\"Get (width, height) of the current terminal.\"\"\"\n    try:\n        import fcntl, termios, struct # fcntl module only available on Unix\n        return struct.unpack('hh', fcntl.ioctl(1, termios.TIOCGWINSZ, '1234'))\n    except:\n        return (40, 80)",
+    "arguments": [
+      "def",
+      "get_terminal_size",
+      "("
+    ]
+  },
+  "40": {
+    "name": "cbs_download",
+    "language": "python",
+    "docstring": "Downloads CBS videos by URL.",
+    "code": "def cbs_download(url, output_dir='.', merge=True, info_only=False, **kwargs):\n    \"\"\"Downloads CBS videos by URL.\n    \"\"\"\n    html = get_content(url)\n    pid = match1(html, r'video\\.settings\\.pid\\s*=\\s*\\'([^\\']+)\\'')\n    title = match1(html, r'video\\.settings\\.title\\s*=\\s*\\\"([^\\\"]+)\\\"')\n    theplatform_download_by_pid(pid, title, output_dir=output_dir, merge=merge, info_only=info_only)",
+    "arguments": [
+      "def",
+      "cbs_download",
+      "("
+    ]
+  },
+  "41": {
+    "name": "Iqiyi.download",
+    "language": "python",
+    "docstring": "Override the original one Ugly ugly dirty hack",
+    "code": "def download(self, **kwargs):\n        \"\"\"Override the original one\n        Ugly ugly dirty hack\"\"\"\n        if 'json_output' in kwargs and kwargs['json_output']:\n            json_output.output(self)\n        elif 'info_only' in kwargs and kwargs['info_only']:\n            if 'stream_id' in kwargs and kwargs['stream_id']:\n                stream_id = kwargs['stream_id']\n                if 'index' not in kwargs:\n                    self.p(stream_id)\n                else:\n                    self.p_i(stream_id)\n            else:\n                if 'index' not in kwargs:\n                    self.p([])\n                else:\n                    stream_id = self.streams_sorted[0]['id'] if 'id' in self.streams_sorted[0] else self.streams_sorted[0]['itag']\n                    self.p_i(stream_id)\n        else:\n            if 'stream_id' in kwargs and kwargs['stream_id']:\n                stream_id = kwargs['stream_id']\n            else:\n                stream_id = self.streams_sorted[0]['id'] if 'id' in self.streams_sorted[0] else self.streams_sorted[0]['itag']\n            if 'index' not in kwargs:\n                self.p(stream_id)\n            else:\n                self.p_i(stream_id)\n            if stream_id in self.streams:\n                urls = self.streams[stream_id]['src']\n                ext = self.streams[stream_id]['container']\n                total_size = self.streams[stream_id]['size']\n            else:\n                urls = self.dash_streams[stream_id]['src']\n                ext = self.dash_streams[stream_id]['container']\n                total_size = self.dash_streams[stream_id]['size']\n            if not urls:\n                log.wtf('[Failed] Cannot extract video source.')\n            download_url_ffmpeg(urls[0], self.title, 'mp4', output_dir=kwargs['output_dir'], merge=kwargs['merge'], stream=False)\n            if not kwargs['caption']:\n                print('Skipping captions.')\n                return\n            for lang in self.caption_tracks:\n                filename = '%s.%s.srt' % (get_filename(self.title), lang)\n                print('Saving %s ... ' % filename, end=\"\", flush=True)\n                srt = self.caption_tracks[lang]\n                with open(os.path.join(kwargs['output_dir'], filename),\n                          'w', encoding='utf-8') as x:\n                    x.write(srt)\n                print('Done.')",
+    "arguments": [
+      "def",
+      "download",
+      "("
+    ]
+  },
+  "42": {
+    "name": "acfun_download_by_vid",
+    "language": "python",
+    "docstring": "str, str, str, bool, bool ->None Download Acfun video by vid. Call Acfun API, decide which site to use, and pass the job to its extractor.",
+    "code": "def acfun_download_by_vid(vid, title, output_dir='.', merge=True, info_only=False, **kwargs):\n    \"\"\"str, str, str, bool, bool ->None\n    Download Acfun video by vid.\n    Call Acfun API, decide which site to use, and pass the job to its\n    extractor.\n    \"\"\"\n    info = json.loads(get_content('http://www.acfun.cn/video/getVideo.aspx?id=' + vid))\n    sourceType = info['sourceType']\n    if 'sourceId' in info: sourceId = info['sourceId']\n    if sourceType == 'sina':\n        sina_download_by_vid(sourceId, title, output_dir=output_dir, merge=merge, info_only=info_only)\n    elif sourceType == 'youku':\n        youku_download_by_vid(sourceId, title=title, output_dir=output_dir, merge=merge, info_only=info_only, **kwargs)\n    elif sourceType == 'tudou':\n        tudou_download_by_iid(sourceId, title, output_dir=output_dir, merge=merge, info_only=info_only)\n    elif sourceType == 'qq':\n        qq_download_by_vid(sourceId, title, True, output_dir=output_dir, merge=merge, info_only=info_only)\n    elif sourceType == 'letv':\n        letvcloud_download_by_vu(sourceId, '2d8c027396', title, output_dir=output_dir, merge=merge, info_only=info_only)\n    elif sourceType == 'zhuzhan':\n        url = 'http://www.acfun.cn/v/ac' + vid\n        yk_streams = youku_acfun_proxy(info['sourceId'], info['encode'], url)\n        seq = ['mp4hd3', 'mp4hd2', 'mp4hd', 'flvhd']\n        for t in seq:\n            if yk_streams.get(t):\n                preferred = yk_streams[t]\n                break\n        size = 0\n        for url in preferred[0]:\n            _, _, seg_size = url_info(url)\n            size += seg_size\n        if re.search(r'fid=[0-9A-Z\\-]*.flv', preferred[0][0]):\n            ext = 'flv'\n        else:\n            ext = 'mp4'\n        print_info(site_info, title, ext, size)\n        if not info_only:\n            download_urls(preferred[0], title, ext, size, output_dir=output_dir, merge=merge)\n    else:\n        raise NotImplementedError(sourceType)\n    if not info_only and not dry_run:\n        if not kwargs['caption']:\n            print('Skipping danmaku.')\n            return\n        try:\n            title = get_filename(title)\n            print('Downloading %s ...\\n' % (title + '.cmt.json'))\n            cmt = get_srt_json(vid)\n            with open(os.path.join(output_dir, title + '.cmt.json'), 'w', encoding='utf-8') as x:\n                x.write(cmt)\n        except:\n            pass",
+    "arguments": [
+      "def",
+      "acfun_download_by_vid",
+      "("
+    ]
+  },
+  "43": {
+    "name": "main_dev",
+    "language": "python",
+    "docstring": "Main entry point. you-get-dev",
+    "code": "def main_dev(**kwargs):\n    \"\"\"Main entry point.\n    you-get-dev\n    \"\"\"\n    head = git.get_head(kwargs['repo_path'])\n    try:\n        opts, args = getopt.getopt(sys.argv[1:], _short_options, _options)\n    except getopt.GetoptError as e:\n        log.wtf(\"\"\"\n    [Fatal] {}.\n    Try '{} --help' for more options.\"\"\".format(e, script_name))\n    if not opts and not args:\n        print(_help)\n    else:\n        conf = {}\n        for opt, arg in opts:\n            if opt in ('-h', '--help'):\n                print(_help)\n            elif opt in ('-V', '--version'):\n                log.println(\"you-get:\", log.BOLD)\n                log.println(\"    version:  {}\".format(__version__))\n                if head is not None:\n                    log.println(\"    branch:   {}\\n    commit:   {}\".format(*head))\n                else:\n                    log.println(\"    branch:   {}\\n    commit:   {}\".format(\"(stable)\", \"(tag v{})\".format(__version__)))\n                log.println(\"    platform: {}\".format(platform.platform()))\n                log.println(\"    python:   {}\".format(sys.version.split('\\n')[0]))\n            elif opt in ('-g', '--gui'):\n                conf['gui'] = True\n            elif opt in ('-f', '--force'):\n                conf['force'] = True\n            elif opt in ('-l', '--playlist', '--playlists'):\n                conf['playlist'] = True\n        if args:\n            if 'gui' in conf and conf['gui']:\n                from .gui import gui_main\n                gui_main(*args, **conf)\n            else:\n                from .console import console_main\n                console_main(*args, **conf)",
+    "arguments": [
+      "def",
+      "main_dev",
+      "("
+    ]
+  },
+  "44": {
+    "name": "ffmpeg_download_stream",
+    "language": "python",
+    "docstring": "str, str->True WARNING: NOT THE SAME PARMS AS OTHER FUNCTIONS!!!!!! You can basicly download anything with this function but better leave it alone with",
+    "code": "def ffmpeg_download_stream(files, title, ext, params={}, output_dir='.', stream=True):\n    \"\"\"str, str->True\n    WARNING: NOT THE SAME PARMS AS OTHER FUNCTIONS!!!!!!\n    You can basicly download anything with this function\n    but better leave it alone with\n    \"\"\"\n    output = title + '.' + ext\n    if not (output_dir == '.'):\n        output = output_dir + '/' + output\n    print('Downloading streaming content with FFmpeg, press q to stop recording...')\n    if stream:\n        ffmpeg_params = [FFMPEG] + ['-y', '-re', '-i']\n    else:\n        ffmpeg_params = [FFMPEG] + ['-y', '-i']\n    ffmpeg_params.append(files)  #not the same here!!!!\n    if FFMPEG == 'avconv':  #who cares?\n        ffmpeg_params += ['-c', 'copy', output]\n    else:\n        ffmpeg_params += ['-c', 'copy', '-bsf:a', 'aac_adtstoasc']\n    if params is not None:\n        if len(params) > 0:\n            for k, v in params:\n                ffmpeg_params.append(k)\n                ffmpeg_params.append(v)\n    ffmpeg_params.append(output)\n    print(' '.join(ffmpeg_params))\n    try:\n        a = subprocess.Popen(ffmpeg_params, stdin= subprocess.PIPE)\n        a.communicate()\n    except KeyboardInterrupt:\n        try:\n            a.stdin.write('q'.encode('utf-8'))\n        except:\n            pass\n    return True",
+    "arguments": [
+      "def",
+      "ffmpeg_download_stream",
+      "("
+    ]
+  },
+  "45": {
+    "name": "match1",
+    "language": "python",
+    "docstring": "Scans through a string for substrings matched some patterns (first-subgroups only). Args: text: A string to be scanned. patterns: Arbitrary number of regex patterns. Returns: When only one pattern is given, returns a string (None if no match found). When more than one pattern are given, returns a list of strings ([] if no match found).",
+    "code": "def match1(text, *patterns):\n    \"\"\"Scans through a string for substrings matched some patterns (first-subgroups only).\n    Args:\n        text: A string to be scanned.\n        patterns: Arbitrary number of regex patterns.\n    Returns:\n        When only one pattern is given, returns a string (None if no match found).\n        When more than one pattern are given, returns a list of strings ([] if no match found).\n    \"\"\"\n    if len(patterns) == 1:\n        pattern = patterns[0]\n        match = re.search(pattern, text)\n        if match:\n            return match.group(1)\n        else:\n            return None\n    else:\n        ret = []\n        for pattern in patterns:\n            match = re.search(pattern, text)\n            if match:\n                ret.append(match.group(1))\n        return ret",
+    "arguments": [
+      "def",
+      "match1",
+      "("
+    ]
+  },
+  "46": {
+    "name": "matchall",
+    "language": "python",
+    "docstring": "Scans through a string for substrings matched some patterns. Args: text: A string to be scanned. patterns: a list of regex pattern. Returns: a list if matched. empty if not.",
+    "code": "def matchall(text, patterns):\n    \"\"\"Scans through a string for substrings matched some patterns.\n    Args:\n        text: A string to be scanned.\n        patterns: a list of regex pattern.\n    Returns:\n        a list if matched. empty if not.\n    \"\"\"\n    ret = []\n    for pattern in patterns:\n        match = re.findall(pattern, text)\n        ret += match\n    return ret",
+    "arguments": [
+      "def",
+      "matchall",
+      "("
+    ]
+  },
+  "47": {
+    "name": "parse_query_param",
+    "language": "python",
+    "docstring": "Parses the query string of a URL and returns the value of a parameter. Args: url: A URL. param: A string representing the name of the parameter. Returns: The value of the parameter.",
+    "code": "def parse_query_param(url, param):\n    \"\"\"Parses the query string of a URL and returns the value of a parameter.\n    Args:\n        url: A URL.\n        param: A string representing the name of the parameter.\n    Returns:\n        The value of the parameter.\n    \"\"\"\n    try:\n        return parse.parse_qs(parse.urlparse(url).query)[param][0]\n    except:\n        return None",
+    "arguments": [
+      "def",
+      "parse_query_param",
+      "("
+    ]
+  },
+  "48": {
+    "name": "ungzip",
+    "language": "python",
+    "docstring": "Decompresses data for Content-Encoding: gzip.",
+    "code": "def ungzip(data):\n    \"\"\"Decompresses data for Content-Encoding: gzip.\n    \"\"\"\n    from io import BytesIO\n    import gzip\n    buffer = BytesIO(data)\n    f = gzip.GzipFile(fileobj=buffer)\n    return f.read()",
+    "arguments": [
+      "def",
+      "ungzip",
+      "("
+    ]
+  },
+  "49": {
+    "name": "undeflate",
+    "language": "python",
+    "docstring": "Decompresses data for Content-Encoding: deflate. (the zlib compression is used.)",
+    "code": "def undeflate(data):\n    \"\"\"Decompresses data for Content-Encoding: deflate.\n    (the zlib compression is used.)\n    \"\"\"\n    import zlib\n    decompressobj = zlib.decompressobj(-zlib.MAX_WBITS)\n    return decompressobj.decompress(data)+decompressobj.flush()",
+    "arguments": [
+      "def",
+      "undeflate",
+      "("
+    ]
+  },
+  "50": {
+    "name": "get_content",
+    "language": "python",
+    "docstring": "Gets the content of a URL via sending a HTTP GET request. Args: url: A URL. headers: Request headers used by the client. decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type. Returns: The content as a string.",
+    "code": "def get_content(url, headers={}, decoded=True):\n    \"\"\"Gets the content of a URL via sending a HTTP GET request.\n    Args:\n        url: A URL.\n        headers: Request headers used by the client.\n        decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type.\n    Returns:\n        The content as a string.\n    \"\"\"\n    logging.debug('get_content: %s' % url)\n    req = request.Request(url, headers=headers)\n    if cookies:\n        cookies.add_cookie_header(req)\n        req.headers.update(req.unredirected_hdrs)\n    response = urlopen_with_retry(req)\n    data = response.read()\n    content_encoding = response.getheader('Content-Encoding')\n    if content_encoding == 'gzip':\n        data = ungzip(data)\n    elif content_encoding == 'deflate':\n        data = undeflate(data)\n    if decoded:\n        charset = match1(\n            response.getheader('Content-Type', ''), r'charset=([\\w-]+)'\n        )\n        if charset is not None:\n            data = data.decode(charset, 'ignore')\n        else:\n            data = data.decode('utf-8', 'ignore')\n    return data",
+    "arguments": [
+      "def",
+      "get_content",
+      "("
+    ]
+  },
+  "51": {
+    "name": "post_content",
+    "language": "python",
+    "docstring": "Post the content of a URL via sending a HTTP POST request. Args: url: A URL. headers: Request headers used by the client. decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type. Returns: The content as a string.",
+    "code": "def post_content(url, headers={}, post_data={}, decoded=True, **kwargs):\n    \"\"\"Post the content of a URL via sending a HTTP POST request.\n    Args:\n        url: A URL.\n        headers: Request headers used by the client.\n        decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type.\n    Returns:\n        The content as a string.\n    \"\"\"\n    if kwargs.get('post_data_raw'):\n        logging.debug('post_content: %s\\npost_data_raw: %s' % (url, kwargs['post_data_raw']))\n    else:\n        logging.debug('post_content: %s\\npost_data: %s' % (url, post_data))\n    req = request.Request(url, headers=headers)\n    if cookies:\n        cookies.add_cookie_header(req)\n        req.headers.update(req.unredirected_hdrs)\n    if kwargs.get('post_data_raw'):\n        post_data_enc = bytes(kwargs['post_data_raw'], 'utf-8')\n    else:\n        post_data_enc = bytes(parse.urlencode(post_data), 'utf-8')\n    response = urlopen_with_retry(req, data=post_data_enc)\n    data = response.read()\n    content_encoding = response.getheader('Content-Encoding')\n    if content_encoding == 'gzip':\n        data = ungzip(data)\n    elif content_encoding == 'deflate':\n        data = undeflate(data)\n    if decoded:\n        charset = match1(\n            response.getheader('Content-Type'), r'charset=([\\w-]+)'\n        )\n        if charset is not None:\n            data = data.decode(charset)\n        else:\n            data = data.decode('utf-8')\n    return data",
+    "arguments": [
+      "def",
+      "post_content",
+      "("
+    ]
+  },
+  "52": {
+    "name": "parse_host",
+    "language": "python",
+    "docstring": "Parses host name and port number from a string.",
+    "code": "def parse_host(host):\n    \"\"\"Parses host name and port number from a string.\n    \"\"\"\n    if re.match(r'^(\\d+)$', host) is not None:\n        return (\"0.0.0.0\", int(host))\n    if re.match(r'^(\\w+)://', host) is None:\n        host = \"//\" + host\n    o = parse.urlparse(host)\n    hostname = o.hostname or \"0.0.0.0\"\n    port = o.port or 0\n    return (hostname, port)",
+    "arguments": [
+      "def",
+      "parse_host",
+      "("
+    ]
+  },
+  "53": {
+    "name": "print_more_compatible",
+    "language": "python",
+    "docstring": "Overload default print function as py (<3.3) does not support 'flush' keyword. Although the function name can be same as print to get itself overloaded automatically, I'd rather leave it with a different name and only overload it when importing to make less confusion.",
+    "code": "def print_more_compatible(*args, **kwargs):\n    import builtins as __builtin__\n    \"\"\"Overload default print function as py (<3.3) does not support 'flush' keyword.\n    Although the function name can be same as print to get itself overloaded automatically,\n    I'd rather leave it with a different name and only overload it when importing to make less confusion.\n    \"\"\"\n    if sys.version_info[:2] >= (3, 3):\n        return __builtin__.print(*args, **kwargs)\n    doFlush = kwargs.pop('flush', False)\n    ret = __builtin__.print(*args, **kwargs)\n    if doFlush:\n        kwargs.get('file', sys.stdout).flush()\n    return ret",
+    "arguments": [
+      "def",
+      "print_more_compatible",
+      "("
+    ]
+  },
+  "54": {
+    "name": "createInstance",
+    "language": "javascript",
+    "docstring": "Create an instance of Axios @param {Object} defaultConfig The default config for the instance @return {Axios} A new instance of Axios",
+    "code": "function createInstance(defaultConfig) {\n  var context = new Axios(defaultConfig);\n  var instance = bind(Axios.prototype.request, context);\n  utils.extend(instance, Axios.prototype, context);\n  utils.extend(instance, context);\n  return instance;\n}",
+    "arguments": [
+      "function",
+      "createInstance",
+      "("
+    ]
+  },
+  "55": {
+    "name": "CancelToken",
+    "language": "javascript",
+    "docstring": "A `CancelToken` is an object that can be used to request cancellation of an operation. @class @param {Function} executor The executor function.",
+    "code": "function CancelToken(executor) {\n  if (typeof executor !== 'function') {\n    throw new TypeError('executor must be a function.');\n  }\n  var resolvePromise;\n  this.promise = new Promise(function promiseExecutor(resolve) {\n    resolvePromise = resolve;\n  });\n  var token = this;\n  executor(function cancel(message) {\n    if (token.reason) {\n      return;\n    }\n    token.reason = new Cancel(message);\n    resolvePromise(token.reason);\n  });\n}",
+    "arguments": [
+      "function",
+      "CancelToken",
+      "("
+    ]
+  },
+  "56": {
+    "name": "isArrayBufferView",
+    "language": "javascript",
+    "docstring": "Determine if a value is a view on an ArrayBuffer @param {Object} val The value to test @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false",
+    "code": "function isArrayBufferView(val) {\n  var result;\n  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {\n    result = ArrayBuffer.isView(val);\n  } else {\n    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);\n  }\n  return result;\n}",
+    "arguments": [
+      "function",
+      "isArrayBufferView",
+      "("
+    ]
+  },
+  "57": {
+    "name": "isStandardBrowserEnv",
+    "language": "javascript",
+    "docstring": "Determine if we're running in a standard browser environment This allows axios to run in a web worker, and react-native. Both environments support XMLHttpRequest, but not fully standard globals. web workers: typeof window -> undefined typeof document -> undefined react-native: navigator.product -> 'ReactNative' nativescript navigator.product -> 'NativeScript' or 'NS'",
+    "code": "function isStandardBrowserEnv() {\n  if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||\n                                           navigator.product === 'NativeScript' ||\n                                           navigator.product === 'NS')) {\n    return false;\n  }\n  return (\n    typeof window !== 'undefined' &&\n    typeof document !== 'undefined'\n  );\n}",
+    "arguments": [
+      "function",
+      "isStandardBrowserEnv",
+      "("
+    ]
+  },
+  "58": {
+    "name": "forEach",
+    "language": "javascript",
+    "docstring": "Iterate over an Array or an Object invoking a function for each item. If `obj` is an Array callback will be called passing the value, index, and complete array for each item. If 'obj' is an Object callback will be called passing the value, key, and complete object for each property. @param {Object|Array} obj The object to iterate @param {Function} fn The callback to invoke for each item",
+    "code": "function forEach(obj, fn) {\n  if (obj === null || typeof obj === 'undefined') {\n    return;\n  }\n  if (typeof obj !== 'object') {\n    /*eslint no-param-reassign:0*/\n    obj = [obj];\n  }\n  if (isArray(obj)) {\n    for (var i = 0, l = obj.length; i < l; i++) {\n      fn.call(null, obj[i], i, obj);\n    }\n  } else {\n    for (var key in obj) {\n      if (Object.prototype.hasOwnProperty.call(obj, key)) {\n        fn.call(null, obj[key], key, obj);\n      }\n    }\n  }\n}",
+    "arguments": [
+      "function",
+      "forEach",
+      "("
+    ]
+  },
+  "59": {
+    "name": "extend",
+    "language": "javascript",
+    "docstring": "Extends object a by mutably adding to it the properties of object b. @param {Object} a The object to be extended @param {Object} b The object to copy properties from @param {Object} thisArg The object to bind function to @return {Object} The resulting value of object a",
+    "code": "function extend(a, b, thisArg) {\n  forEach(b, function assignValue(val, key) {\n    if (thisArg && typeof val === 'function') {\n      a[key] = bind(val, thisArg);\n    } else {\n      a[key] = val;\n    }\n  });\n  return a;\n}",
+    "arguments": [
+      "function",
+      "extend",
+      "("
+    ]
+  },
+  "60": {
+    "name": "fetchQuery",
+    "language": "javascript",
+    "docstring": "Define a function that fetches the results of an operation (query/mutation/etc) and returns its results as a Promise:",
+    "code": "function fetchQuery (operation, variables, cacheConfig, uploadables) {\n  const relayServer = process.browser ? '' : process.env.RELAY_SERVER\n  return fetch(`${relayServer}/graphql`, {\n    method: 'POST',\n    headers: {\n      Accept: 'application/json',\n      'Content-Type': 'application/json'\n    }, // Add authentication and other headers here\n    body: JSON.stringify({\n      query: operation.text, // GraphQL text from input\n      variables\n    })\n  }).then(response => response.json())\n}",
+    "arguments": [
+      "function",
+      "fetchQuery",
+      "("
+    ]
+  },
+  "61": {
+    "name": "retryStrategy",
+    "language": "javascript",
+    "docstring": "konstructor: The redis client constructor method. All redis methods must be promises args: The arguments to pass to the constructor buildNew: is it `new konstructor()` or just `konstructor()`?",
+    "code": "function retryStrategy (times) {\n      if (times === 1) {\n        const error =\n          'Unable to connect to Redis - please check your Redis config!'\n        if (process.env.NODE_ENV === 'test') {\n          console.error(error)\n        } else {\n          api.log(error, 'error')\n        }\n        return 5000\n      }\n      return Math.min(times * 50, maxBackoff)\n    }",
+    "arguments": [
+      "function",
+      "retryStrategy",
+      "("
+    ]
+  },
+  "62": {
+    "name": "writePackageManifest",
+    "language": "javascript",
+    "docstring": "This function writes a minimal `package.json` file for a compiled package. It defines `name`, `main`, `author`, and `license`. It also defines `types`. n.b. types intended for development usage only.",
+    "code": "function writePackageManifest (packageName) {\n  const packagePath = require.resolve(packageName + '/package.json')\n  let { name, main, author, license, types, typings } = require(packagePath)\n  if (!main) {\n    main = 'index.js'\n  }\n  let typesFile = types || typings\n  if (typesFile) {\n    typesFile = require.resolve(join(packageName, typesFile))\n  }\n  const compiledPackagePath = join(__dirname, `dist/compiled/${packageName}`)\n  const potentialLicensePath = join(dirname(packagePath), './LICENSE')\n  if (existsSync(potentialLicensePath)) {\n    this._.files.push({\n      dir: compiledPackagePath,\n      base: 'LICENSE',\n      data: readFileSync(potentialLicensePath, 'utf8')\n    })\n  }\n  this._.files.push({\n    dir: compiledPackagePath,\n    base: 'package.json',\n    data:\n      JSON.stringify(\n        Object.assign(\n          {},\n          { name, main: `${basename(main, '.' + extname(main))}` },\n          author ? { author } : undefined,\n          license ? { license } : undefined,\n          typesFile\n            ? {\n              types: relative(compiledPackagePath, typesFile)\n            }\n            : undefined\n        )\n      ) + '\\n'\n  })\n}",
+    "arguments": [
+      "function",
+      "writePackageManifest",
+      "("
+    ]
+  },
+  "63": {
+    "name": "supportsPreload",
+    "language": "javascript",
+    "docstring": "smaller version of https://gist.github.com/igrigorik/a02f2359f3bc50ca7a9c",
+    "code": "function supportsPreload (list) {\n  if (!list || !list.supports) {\n    return false\n  }\n  try {\n    return list.supports('preload')\n  } catch (e) {\n    return false\n  }\n}",
+    "arguments": [
+      "function",
+      "supportsPreload",
+      "("
+    ]
+  },
+  "64": {
+    "name": "addEntry",
+    "language": "javascript",
+    "docstring": "Based on https://github.com/webpack/webpack/blob/master/lib/DynamicEntryPlugin.js#L29-L37",
+    "code": "function addEntry (compilation, context, name, entry) {\n  return new Promise((resolve, reject) => {\n    const dep = DynamicEntryPlugin.createDependency(entry, name)\n    compilation.addEntry(context, dep, name, (err) => {\n      if (err) return reject(err)\n      resolve()\n    })\n  })\n}",
+    "arguments": [
+      "function",
+      "addEntry",
+      "("
+    ]
+  },
+  "65": {
+    "name": "handleWarnings",
+    "language": "javascript",
+    "docstring": "Compilation with warnings (e.g. ESLint).",
+    "code": "function handleWarnings (warnings) {\n  clearOutdatedErrors()\n  const formatted = formatWebpackMessages({\n    warnings: warnings,\n    errors: []\n  })\n  if (typeof console !== 'undefined' && typeof console.warn === 'function') {\n    for (let i = 0; i < formatted.warnings.length; i++) {\n      if (i === 5) {\n        console.warn(\n          'There were more warnings in other files.\\n' +\n            'You can find a complete log in the terminal.'\n        )\n        break\n      }\n      console.warn(stripAnsi(formatted.warnings[i]))\n    }\n  }\n}",
+    "arguments": [
+      "function",
+      "handleWarnings",
+      "("
+    ]
+  },
+  "66": {
+    "name": "handleErrors",
+    "language": "javascript",
+    "docstring": "Compilation with errors (e.g. syntax error or missing modules).",
+    "code": "function handleErrors (errors) {\n  clearOutdatedErrors()\n  isFirstCompilation = false\n  hasCompileErrors = true\n  var formatted = formatWebpackMessages({\n    errors: errors,\n    warnings: []\n  })\n  ErrorOverlay.reportBuildError(formatted.errors[0])\n  if (typeof console !== 'undefined' && typeof console.error === 'function') {\n    for (var i = 0; i < formatted.errors.length; i++) {\n      console.error(stripAnsi(formatted.errors[i]))\n    }\n  }\n}",
+    "arguments": [
+      "function",
+      "handleErrors",
+      "("
+    ]
+  },
+  "67": {
+    "name": "processMessage",
+    "language": "javascript",
+    "docstring": "Handle messages from the server.",
+    "code": "function processMessage (e) {\n  const obj = JSON.parse(e.data)\n  switch (obj.action) {\n    case 'building': {\n      console.log(\n        '[HMR] bundle ' + (obj.name ? \"'\" + obj.name + \"' \" : '') +\n        'rebuilding'\n      )\n      break\n    }\n    case 'built':\n    case 'sync': {\n      clearOutdatedErrors()\n      if (obj.hash) {\n        handleAvailableHash(obj.hash)\n      }\n      if (obj.warnings.length > 0) {\n        handleWarnings(obj.warnings)\n      }\n      if (obj.errors.length > 0) {\n        if (obj.action === 'sync') {\n          hadRuntimeError = true\n        }\n        handleErrors(obj.errors)\n        break\n      }\n      handleSuccess()\n      break\n    }\n    default: {\n      if (customHmrEventHandler) {\n        customHmrEventHandler(obj)\n        break\n      }\n      break\n    }\n  }\n}",
+    "arguments": [
+      "function",
+      "processMessage",
+      "("
+    ]
+  },
+  "68": {
+    "name": "tryApplyUpdates",
+    "language": "javascript",
+    "docstring": "Attempt to update code on the fly, fall back to a hard reload.",
+    "code": "async function tryApplyUpdates (onHotUpdateSuccess) {\n  if (!module.hot) {\n    console.error('HotModuleReplacementPlugin is not in Webpack configuration.')\n    return\n  }\n  if (!isUpdateAvailable() || !canApplyUpdates()) {\n    return\n  }\n  function handleApplyUpdates (err, updatedModules) {\n    if (err || hadRuntimeError) {\n      if (err) {\n        console.warn('Error while applying updates, reloading page', err)\n      }\n      if (hadRuntimeError) {\n        console.warn('Had runtime error previously, reloading page')\n      }\n      window.location.reload()\n      return\n    }\n    if (typeof onHotUpdateSuccess === 'function') {\n      onHotUpdateSuccess()\n    }\n    if (isUpdateAvailable()) {\n      tryApplyUpdates()\n    }\n  }\n  try {\n    const updatedModules = await module.hot.check(/* autoApply */ {\n      ignoreUnaccepted: true\n    })\n    if (updatedModules) {\n      handleApplyUpdates(null, updatedModules)\n    }\n  } catch (err) {\n    handleApplyUpdates(err, null)\n  }\n}",
+    "arguments": [
+      "async",
+      "function",
+      "tryApplyUpdates"
+    ]
+  },
+  "69": {
+    "name": "tryApplyUpdates",
+    "language": "javascript",
+    "docstring": "This function reads code updates on the fly and hard reloads the page when it has changed.",
+    "code": "async function tryApplyUpdates () {\n  if (!isUpdateAvailable() || !canApplyUpdates()) {\n    return\n  }\n  try {\n    const res = await fetch(`${hotUpdatePath}${curHash}.hot-update.json`)\n    const data = await res.json()\n    const curPage = page === '/' ? 'index' : page\n    const pageUpdated = Object.keys(data.c)\n      .some(mod => {\n        return (\n          mod.indexOf(`pages${curPage.substr(0, 1) === '/' ? curPage : `/${curPage}`}`) !== -1 ||\n          mod.indexOf(`pages${curPage.substr(0, 1) === '/' ? curPage : `/${curPage}`}`.replace(/\\//g, '\\\\')) !== -1\n        )\n      })\n    if (pageUpdated) {\n      document.location.reload(true)\n    } else {\n      curHash = mostRecentHash\n    }\n  } catch (err) {\n    console.error('Error occurred checking for update', err)\n    document.location.reload(true)\n  }\n}",
+    "arguments": [
+      "async",
+      "function",
+      "tryApplyUpdates"
+    ]
+  },
+  "70": {
+    "name": "formatMessage",
+    "language": "javascript",
+    "docstring": "Cleans up webpack error messages. eslint-disable-next-line no-unused-vars",
+    "code": "function formatMessage (message, isError) {\n  let lines = message.split('\\n')\n  lines = lines.filter(line => !/Module [A-z ]+\\(from/.test(line))\n  lines = lines.map(line => {\n    const parsingError = /Line (\\d+):(?:(\\d+):)?\\s*Parsing error: (.+)$/.exec(\n      line\n    )\n    if (!parsingError) {\n      return line\n    }\n    const [, errorLine, errorColumn, errorMessage] = parsingError\n    return `${friendlySyntaxErrorLabel} ${errorMessage} (${errorLine}:${errorColumn})`\n  })\n  message = lines.join('\\n')\n  message = message.replace(\n    /SyntaxError\\s+\\((\\d+):(\\d+)\\)\\s*(.+?)\\n/g,\n    `${friendlySyntaxErrorLabel} $3 ($1:$2)\\n`\n  )\n  message = message.replace(/Line (\\d+):\\d+:/g, 'Line $1:')\n  message = message.replace(\n    /^.*export '(.+?)' was not found in '(.+?)'.*$/gm,\n    `Attempted import error: '$1' is not exported from '$2'.`\n  )\n  message = message.replace(\n    /^.*export 'default' \\(imported as '(.+?)'\\) was not found in '(.+?)'.*$/gm,\n    `Attempted import error: '$2' does not contain a default export (imported as '$1').`\n  )\n  message = message.replace(\n    /^.*export '(.+?)' \\(imported as '(.+?)'\\) was not found in '(.+?)'.*$/gm,\n    `Attempted import error: '$1' is not exported from '$3' (imported as '$2').`\n  )\n  lines = message.split('\\n')\n  if (lines.length > 2 && lines[1].trim() === '') {\n    lines.splice(1, 1)\n  }\n  lines[0] = lines[0].replace(/^(.*) \\d+:\\d+-\\d+$/, '$1')\n  if (lines[1] && lines[1].indexOf('Module not found: ') === 0) {\n    lines = [\n      lines[0],\n      lines[1]\n        .replace('Error: ', '')\n        .replace('Module not found: Cannot find file:', 'Cannot find file:')\n    ]\n  }\n  message = lines.join('\\n')\n  message = message.replace(\n    /^\\s*at\\s((?!webpack:).)*:\\d+:\\d+[\\s)]*(\\n|$)/gm,\n    ''\n  ) // at ... ...:x:y\n  message = message.replace(/^\\s*at\\s<anonymous>(\\n|$)/gm, '') // at <anonymous>\n  lines = message.split('\\n')\n  lines = lines.filter(\n    (line, index, arr) =>\n      index === 0 || line.trim() !== '' || line.trim() !== arr[index - 1].trim()\n  )\n  message = lines.join('\\n')\n  return message.trim()\n}",
+    "arguments": [
+      "function",
+      "formatMessage",
+      "("
+    ]
+  },
+  "71": {
+    "name": "slideNext",
+    "language": "javascript",
+    "docstring": "/* eslint no-unused-vars: \"off\"",
+    "code": "function slideNext (speed = this.params.speed, runCallbacks = true, internal) {\n  const swiper = this;\n  const { params, animating } = swiper;\n  if (params.loop) {\n    if (animating) return false;\n    swiper.loopFix();\n    swiper._clientLeft = swiper.$wrapperEl[0].clientLeft;\n    return swiper.slideTo(swiper.activeIndex + params.slidesPerGroup, speed, runCallbacks, internal);\n  }\n  return swiper.slideTo(swiper.activeIndex + params.slidesPerGroup, speed, runCallbacks, internal);\n}",
+    "arguments": [
+      "function",
+      "slideNext",
+      "("
+    ]
+  },
+  "72": {
+    "name": "slidePrev",
+    "language": "javascript",
+    "docstring": "/* eslint no-unused-vars: \"off\"",
+    "code": "function slidePrev (speed = this.params.speed, runCallbacks = true, internal) {\n  const swiper = this;\n  const {\n    params, animating, snapGrid, slidesGrid, rtlTranslate,\n  } = swiper;\n  if (params.loop) {\n    if (animating) return false;\n    swiper.loopFix();\n    swiper._clientLeft = swiper.$wrapperEl[0].clientLeft;\n  }\n  const translate = rtlTranslate ? swiper.translate : -swiper.translate;\n  function normalize(val) {\n    if (val < 0) return -Math.floor(Math.abs(val));\n    return Math.floor(val);\n  }\n  const normalizedTranslate = normalize(translate);\n  const normalizedSnapGrid = snapGrid.map(val => normalize(val));\n  const normalizedSlidesGrid = slidesGrid.map(val => normalize(val));\n  const currentSnap = snapGrid[normalizedSnapGrid.indexOf(normalizedTranslate)];\n  const prevSnap = snapGrid[normalizedSnapGrid.indexOf(normalizedTranslate) - 1];\n  let prevIndex;\n  if (typeof prevSnap !== 'undefined') {\n    prevIndex = slidesGrid.indexOf(prevSnap);\n    if (prevIndex < 0) prevIndex = swiper.activeIndex - 1;\n  }\n  return swiper.slideTo(prevIndex, speed, runCallbacks, internal);\n}",
+    "arguments": [
+      "function",
+      "slidePrev",
+      "("
+    ]
+  },
+  "73": {
+    "name": "encodeName",
+    "language": "javascript",
+    "docstring": "Original Name encode and decode logic is in github.com/eosio/eos native.hpp Encode a name (a base32 string) to a number. For performance reasons, the blockchain uses the numerical encoding of strings for very common types like account names. @see types.hpp string_to_name @arg {string} name - A string to encode, up to 12 characters long. @return {string<uint64>} - compressed string (from name arg). A string is always used because a number could exceed JavaScript's 52 bit limit.",
+    "code": "function encodeName(name) {\n    var littleEndian = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;\n    if (typeof name !== \"string\") throw new TypeError(\"name parameter is a required string\");\n    if (name.length > 13) throw new TypeError(\"A name can be up to 13 characters long\");\n    var bitstr = \"\";\n    for (var i = 0; i <= 12; i++) {\n        var c = i < name.length ? charidx(name[i]) : 0;\n        var bitlen = i < 12 ? 5 : 4;\n        var bits = Number(c).toString(2);\n        if (bits.length > bitlen) {\n            throw new TypeError(\"Invalid name \" + name);\n        }\n        bits = \"0\".repeat(bitlen - bits.length) + bits;\n        bitstr += bits;\n    }\n    var value = Long.fromString(bitstr, true, 2);\n    var leHex = \"\";\n    var bytes = littleEndian ? value.toBytesLE() : value.toBytesBE();\n    var _iteratorNormalCompletion = true;\n    var _didIteratorError = false;\n    var _iteratorError = undefined;\n    try {\n        for (var _iterator = (0, _getIterator3.default)(bytes), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {\n            var b = _step.value;\n            var n = Number(b).toString(16);\n            leHex += (n.length === 1 ? \"0\" : \"\") + n;\n        }\n    } catch (err) {\n        _didIteratorError = true;\n        _iteratorError = err;\n    } finally {\n        try {\n            if (!_iteratorNormalCompletion && _iterator.return) {\n                _iterator.return();\n            }\n        } finally {\n            if (_didIteratorError) {\n                throw _iteratorError;\n            }\n        }\n    }\n    var ulName = Long.fromString(leHex, true, 16).toString();\n    return ulName.toString();\n}",
+    "arguments": [
+      "function",
+      "encodeName",
+      "("
+    ]
+  },
+  "74": {
+    "name": "UDecimalString",
+    "language": "javascript",
+    "docstring": "Normalize and validate decimal string (potentially large values). Should avoid internationalization issues if possible but will be safe and throw an error for an invalid number. Normalization removes extra zeros or decimal. @return {string} value",
+    "code": "function UDecimalString(value) {\n    assert(value != null, \"value is required\");\n    value = value === \"object\" && value.toString ? value.toString() : String(value);\n    if (value[0] === \".\") {\n        value = '0' + value;\n    }\n    var part = value.split(\".\");\n    assert(part.length <= 2, 'invalid decimal ' + value);\n    assert(/^\\d+(,?\\d)*\\d*$/.test(part[0]), 'invalid decimal ' + value);\n    if (part.length === 2) {\n        assert(/^\\d*$/.test(part[1]), 'invalid decimal ' + value);\n        part[1] = part[1].replace(/0+$/, \"\"); // remove suffixing zeros\n        if (part[1] === \"\") {\n            part.pop();\n        }\n    }\n    part[0] = part[0].replace(/^0*/, \"\"); // remove leading zeros\n    if (part[0] === \"\") {\n        part[0] = \"0\";\n    }\n    return part.join(\".\");\n}",
+    "arguments": [
+      "function",
+      "UDecimalString",
+      "("
+    ]
+  },
+  "75": {
+    "name": "UDecimalPad",
+    "language": "javascript",
+    "docstring": "Ensure a fixed number of decimal places. Safe for large numbers. @see ./format.test.js @example UDecimalPad(10.2, 3) === '10.200' @arg {number|string|object.toString} value @arg {number} precision - number of decimal places @return {string} decimal part is added and zero padded to match precision",
+    "code": "function UDecimalPad(num, precision) {\n    var value = UDecimalString(num);\n    assert.equal(\"number\", typeof precision === 'undefined' ? 'undefined' : (0, _typeof3.default)(precision), \"precision\");\n    var part = value.split(\".\");\n    if (precision === 0 && part.length === 1) {\n        return part[0];\n    }\n    if (part.length === 1) {\n        return part[0] + '.' + \"0\".repeat(precision);\n    } else {\n        var pad = precision - part[1].length;\n        assert(pad >= 0, 'decimal \\'' + value + '\\' exceeds precision ' + precision);\n        return part[0] + '.' + part[1] + \"0\".repeat(pad);\n    }\n}",
+    "arguments": [
+      "function",
+      "UDecimalPad",
+      "("
+    ]
+  },
+  "76": {
+    "name": "UDecimalUnimply",
+    "language": "javascript",
+    "docstring": "Put the decimal place back in its position and return the normalized number string (with any unnecessary zeros or an unnecessary decimal removed). @arg {string|number|value.toString} value 10000 @arg {number} precision 4 @return {number} 1.0000",
+    "code": "function UDecimalUnimply(value, precision) {\n    assert(value != null, \"value is required\");\n    value = value === \"object\" && value.toString ? value.toString() : String(value);\n    assert(/^\\d+$/.test(value), 'invalid whole number ' + value);\n    var pad = precision - value.length;\n    if (pad > 0) {\n        value = '' + \"0\".repeat(pad) + value;\n    }\n    var dotIdx = value.length - precision;\n    value = value.slice(0, dotIdx) + '.' + value.slice(dotIdx);\n    return UDecimalString(value); // Normalize\n}",
+    "arguments": [
+      "function",
+      "UDecimalUnimply",
+      "("
+    ]
+  },
+  "77": {
+    "name": "parseAssetSymbol",
+    "language": "javascript",
+    "docstring": "@arg {string} assetSymbol - 4,SYM @arg {number} [precision = null] - expected precision or mismatch AssertionError @example assert.deepEqual(parseAssetSymbol('SYM'), {precision: null, symbol: 'SYM'}) @example assert.deepEqual(parseAssetSymbol('4,SYM'), {precision: 4, symbol: 'SYM'}) @throws AssertionError @throws TypeError",
+    "code": "function parseAssetSymbol(assetSymbol) {\n    var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;\n    assert.equal(typeof assetSymbol === 'undefined' ? 'undefined' : (0, _typeof3.default)(assetSymbol), \"string\", \"Asset symbol should be string\");\n    if (assetSymbol.indexOf(\",\") === -1) {\n        assetSymbol = ',' + assetSymbol; // null precision\n    }\n    var v = assetSymbol.split(\",\");\n    assert(v.length === 2, 'Asset symbol \"' + assetSymbol + '\" may have a precision like this: 4,SYM');\n    var symbolPrecision = v[0] == \"\" ? null : parseInt(v[0]);\n    var symbol = v[1];\n    if (precision != null) {\n        assert.equal(precision, symbolPrecision, \"Asset symbol precision mismatch\");\n    } else {\n        precision = symbolPrecision;\n    }\n    if (precision != null) {\n        assert.equal(typeof precision === 'undefined' ? 'undefined' : (0, _typeof3.default)(precision), \"number\", \"precision\");\n        assert(precision > -1, \"precision must be positive\");\n    }\n    if (!/^[0-9]+$/.test(symbol)) {\n        if (/^S#[0-9]+$/.test(symbol)) {\n            symbol = symbol.replace(\"S#\", \"\");\n        } else {\n            throw new Error('Asset symbol should looks like \\'S#{num}\\', but got ' + symbol + '.');\n        }\n    }\n    assert(precision <= 18, \"Precision should be 18 characters or less\");\n    assert(symbol.length <= 7, \"Asset symbol is 7 characters or less\");\n    return { precision: precision, symbol: symbol };\n}",
+    "arguments": [
+      "function",
+      "parseAssetSymbol",
+      "("
+    ]
+  },
+  "78": {
+    "name": "encodeAddress",
+    "language": "javascript",
+    "docstring": "/* Encode EVT Address in address.cpp",
+    "code": "function encodeAddress(str) {\n    /* Check avalibility of evt_address */\n    if (typeof str !== \"string\" || str.length !== 53 || !str.startsWith(\"EVT\")) throw new Error(\"EVTAddress should be a string with length 53 starts with EVT.\");\n    str = str.substr(3);\n    if (str === \"0\".repeat(50)) return Buffer.from([0, 0]); // 0000\n    else if (str[0] === \"0\") return encodeGeneratedAddressToBin(\"EVT\" + str); // generated address\n    var buf = Buffer.concat([Buffer.from([1, 0]), new Buffer(base58.decode(str))]); // normal\n    return buf.slice(0, buf.length - 4);\n}",
+    "arguments": [
+      "function",
+      "encodeAddress",
+      "("
+    ]
+  },
+  "79": {
+    "name": "decodeAddress",
+    "language": "javascript",
+    "docstring": "/* Decode EVT Address in address.cpp",
+    "code": "function decodeAddress(bytes) {\n    if (bytes.length === 2 && bytes.equals(Buffer.from([0, 0]))) return \"EVT\" + \"0\".repeat(50); // 0000\n    else if (bytes.slice(0, 2).equals(Buffer.from([2, 0]))) return decodeGeneratedAddressFromBin(bytes); // generated address\n    return \"EVT\" + KeyUtils.checkEncode(bytes.slice(2));\n}",
+    "arguments": [
+      "function",
+      "decodeAddress",
+      "("
+    ]
+  },
+  "80": {
+    "name": "createSegment",
+    "language": "javascript",
+    "docstring": "create a buffer representing a segment. Different typeKey has different data type, this is the detail: 0 - 20 1-byte unsigned integer 21 - 40 2-byte unsigned integer (BE) 41 - 90 4-byte unsigned integer (BE) 91 - 155 string 156 - 165 uuid 166 - 180 byte string > 180 remained @param {*} typeKey the typeKey, different key has different type and meanings (0 - 254) @param {*} value the value, must has the right data type according to typeKey",
+    "code": "function createSegment(typeKey, value) {\n    if (typeKey <= 20) {\n        return (new Buffer([ typeKey, value ]));\n    }\n    if (typeKey <= 40) {\n        let content = new Buffer(3);\n        content.writeUInt8(typeKey, 0);\n        content.writeUInt16BE(value, 1);\n        return (content);\n    }\n    else if (typeKey <= 90) {\n        let content = new Buffer(5);\n        content.writeUInt8(typeKey, 0);\n        content.writeUInt32BE(value, 1);\n        return (content);\n    }\n    else if (typeKey <= 155) {\n        let content = Buffer.from(value);\n        let header = new Buffer([ typeKey, content.length ]);\n        return (Buffer.concat([ header, content ]));\n    }\n    else if (typeKey <= 165) {\n        return (Buffer.concat([ new Buffer( [ typeKey ] ), value ]));\n    }\n    else if (typeKey <= 180) {\n        let content = value;\n        let header = new Buffer([ typeKey, content.length ]);\n        return (Buffer.concat([ header, content ]));\n    }\n    else {\n        throw new Error(\"typeKey not supported\");\n    }\n}",
+    "arguments": [
+      "function",
+      "createSegment",
+      "("
+    ]
+  },
+  "81": {
+    "name": "parseSegment",
+    "language": "javascript",
+    "docstring": "Parse a segment and convert it into json. @param {Buffer} buffer @param {number} offset",
+    "code": "function parseSegment(buffer, offset) {\n    let typeKey = buffer[offset];\n    if (typeKey <= 20) {\n        if (buffer[offset + 1] == undefined) throw new Error(\"ParseError: No value for uint8\");\n        return { typeKey: typeKey, value: buffer[offset + 1], bufferLength: 2 };\n    }\n    if (typeKey <= 40) {\n        if (buffer[offset + 2] == undefined) throw new Error(\"ParseError: Incomplete value for uint16\");\n        return { typeKey: typeKey, value: buffer.readUInt16BE(offset + 1), bufferLength: 3 };\n    }\n    else if (typeKey <= 90) {\n        if (buffer[offset + 4] == undefined) throw new Error(\"ParseError: Incomplete value for uint32\");\n        return { typeKey: typeKey, value: buffer.readUInt32BE(offset + 1), bufferLength: 5 };\n    }\n    else if (typeKey <= 155) {\n        if (buffer[offset + 1] == undefined) throw new Error(\"ParseError: Incomplete length value for string\");\n        let len = buffer.readUInt8(offset + 1);\n        if (buffer[offset + 1 + len] == undefined) throw new Error(\"ParseError: Incomplete value for string\");\n        let value = buffer.toString(\"utf8\", offset + 2, offset + 2 + len);\n        return { typeKey: typeKey, value: value, bufferLength: 2 + len };\n    }\n    else if (typeKey <= 165) {\n        if (buffer[offset + 16] == undefined) throw new Error(\"ParseError: Incomplete value for uuid\");\n        let len = 16;\n        let value = new Buffer(len);\n        buffer.copy(value, 0, offset + 1, offset + 1 + len);\n        return { typeKey: typeKey, value: value, bufferLength: 1 + len };\n    }\n    else if (typeKey <= 180) {\n        if (buffer[offset + 1] == undefined) throw new Error(\"ParseError: Incomplete length value for byte string\");\n        let len = buffer.readUInt8(offset + 1);\n        if (buffer[offset + len + 1] == undefined) throw new Error(\"ParseError: Incomplete value for byte string\");\n        let value = new Buffer(len);\n        buffer.copy(value, 0, offset + 2, offset + 2 + len);\n        return { typeKey: typeKey, value: value, bufferLength: 2 + len };\n    }\n    else {\n        throw new Error(\"typeKey not supported\");\n    }\n}",
+    "arguments": [
+      "function",
+      "parseSegment",
+      "("
+    ]
+  },
+  "82": {
+    "name": "parseSegments",
+    "language": "javascript",
+    "docstring": "Parse a buffer to a array of segments @param {Buffer} buffer",
+    "code": "function parseSegments(buffer) {\n    if (buffer.length == 0) throw new Error(\"bad segments stream\");\n    let pointer = 0;\n    let segments = [ ];\n    while (pointer < buffer.length) {\n        let seg = parseSegment(buffer, pointer);\n        segments.push(seg);\n        pointer += seg.bufferLength;\n        delete seg.bufferLength;\n    }\n    if (pointer != buffer.length) {\n        throw new Error(\"Bad / incomplete segments\");\n    }\n    return segments;\n}",
+    "arguments": [
+      "function",
+      "parseSegments",
+      "("
+    ]
+  },
+  "83": {
+    "name": "parseQRCode",
+    "language": "javascript",
+    "docstring": "Parse a everiToken's QRCode Text @param {string} text",
+    "code": "function parseQRCode(text, options) {\n    if (text.length < 3 || text.length > 2000) throw new Error(\"Invalid length of EvtLink\");\n    let textSplited = text.split(\"_\");\n    if (textSplited.length > 2) return null;\n    let rawText;\n    if (textSplited[0].startsWith(qrPrefix)) {\n        rawText = textSplited[0].substr(qrPrefix.length);\n    }\n    else {\n        rawText = textSplited[0];\n    }\n    let segmentsBytes = EvtLink.dec2b(rawText);\n    if (segmentsBytes.length < 2) throw new Error(\"no flag in segment\");\n    let flag = segmentsBytes.readInt16BE(0);\n    if ((flag & 1) == 0) { // check version of EvtLink\n        throw new Error(\"The EvtLink is invalid or its version is newer than version 1 and is not supported by evtjs yet\");\n    }\n    let segmentsBytesRaw = new Buffer(segmentsBytes.length - 2);\n    segmentsBytes.copy(segmentsBytesRaw, 0, 2, segmentsBytes.length);\n    let publicKeys = [ ];\n    let signatures = [ ];\n    if (textSplited[1]) {\n        let buf = EvtLink.dec2b(textSplited[1]);\n        let i = 0;\n        if (buf.length % 65 !== 0) {\n            throw new Error(\"length of signature is invalid\");\n        }\n        while (i * 65 < buf.length) {\n            let current = new Buffer(65);\n            buf.copy(current, 0, i * 65, i * 65 + 65);\n            let signature = ecc.Signature.fromBuffer(current);\n            signatures.push(signature.toString());\n            if (!options || options.recoverPublicKeys) {\n                publicKeys.push(signature.recover(segmentsBytes).toString());\n            }\n            ++i;\n        }\n    }\n    return { flag, segments: parseSegments(segmentsBytesRaw), publicKeys, signatures };\n}",
+    "arguments": [
+      "function",
+      "parseQRCode",
+      "("
+    ]
+  },
+  "84": {
+    "name": "__calcKeyProvider",
+    "language": "javascript",
+    "docstring": "Calculate the value of keyProvider @param {string | string[] | function} keyProvider @returns {string[]}",
+    "code": "async function __calcKeyProvider(keyProvider) {\n    if (!keyProvider) { return []; }\n    if (keyProvider.apply && keyProvider.call) {\n        keyProvider = keyProvider();\n    }\n    keyProvider = await Promise.resolve(keyProvider);\n    if (!Array.isArray(keyProvider)) {\n        keyProvider = [ keyProvider ];\n    }\n    for (let key of keyProvider) {\n        if (!EvtKey.isValidPrivateKey(key)) {\n            throw new Error(\"Invalid private key\");\n        }\n    }\n    return keyProvider;\n}",
+    "arguments": [
+      "async",
+      "function",
+      "__calcKeyProvider"
+    ]
+  },
+  "85": {
+    "name": "random32ByteBuffer",
+    "language": "javascript",
+    "docstring": "Additional forms of entropy are used. A week random number generator can run out of entropy. This should ensure even the worst random number implementation will be reasonably safe. @arg {number} [cpuEntropyBits = 0] generate entropy on the fly. This is not required, entropy can be added in advanced via addEntropy or initialize(). @arg {boolean} [safe = true] false for testing, otherwise this will be true to ensure initialize() was called. @return a random buffer obtained from the secure random number generator. Additional entropy is used.",
+    "code": "function random32ByteBuffer({cpuEntropyBits = 0, safe = true} = {}) {\n    assert.equal(typeof cpuEntropyBits, \"number\", \"cpuEntropyBits\");\n    assert.equal(typeof safe, \"boolean\", \"boolean\");\n    if(safe) {\n        assert(entropyCount >= 128, \"Call initialize() to add entropy (current: \" + entropyCount + \")\");\n    }\n    const hash_array = [];\n    hash_array.push(randomBytes(32));\n    hash_array.push(Buffer.from(cpuEntropy(cpuEntropyBits)));\n    hash_array.push(externalEntropyArray);\n    hash_array.push(browserEntropy());\n    return hash.sha256(Buffer.concat(hash_array));\n}",
+    "arguments": [
+      "function",
+      "random32ByteBuffer",
+      "("
+    ]
+  },
+  "86": {
+    "name": "addEntropy",
+    "language": "javascript",
+    "docstring": "Adds entropy. This may be called many times while the amount of data saved is accumulatively reduced to 101 integers. Data is retained in RAM for the life of this module. @example React <code> componentDidMount() { this.refs.MyComponent.addEventListener(\"mousemove\", this.onEntropyEvent, {capture: false, passive: true}) } componentWillUnmount() { this.refs.MyComponent.removeEventListener(\"mousemove\", this.onEntropyEvent); } onEntropyEvent = (e) => { if(e.type === 'mousemove') key_utils.addEntropy(e.pageX, e.pageY, e.screenX, e.screenY) else console.log('onEntropyEvent Unknown', e.type, e) } </code>",
+    "code": "function addEntropy(...ints) {\n    assert.equal(externalEntropyArray.length, 101, \"externalEntropyArray\");\n    entropyCount += ints.length;\n    for(const i of ints) {\n        const pos = entropyPos++ % 101;\n        const i2 = externalEntropyArray[pos] += i;\n        if(i2 > 9007199254740991)\n            externalEntropyArray[pos] = 0;\n    }\n}",
+    "arguments": [
+      "function",
+      "addEntropy",
+      "("
+    ]
+  },
+  "87": {
+    "name": "cpuEntropy",
+    "language": "javascript",
+    "docstring": "This runs in just under 1 second and ensures a minimum of cpuEntropyBits bits of entropy are gathered. Based on more-entropy. @see https://github.com/keybase/more-entropy/blob/master/src/generator.iced @arg {number} [cpuEntropyBits = 128] @return {array} counts gathered by measuring variations in the CPU speed during floating point operations.",
+    "code": "function cpuEntropy(cpuEntropyBits = 128) {\n    let collected = [];\n    let lastCount = null;\n    let lowEntropySamples = 0;\n    while(collected.length < cpuEntropyBits) {\n        const count = floatingPointCount();\n        if(lastCount != null) {\n            const delta = count - lastCount;\n            if(Math.abs(delta) < 1) {\n                lowEntropySamples++;\n                continue;\n            }\n            const bits = Math.floor(log2(Math.abs(delta)) + 1);\n            if(bits < 4) {\n                if(bits < 2) {\n                    lowEntropySamples++;\n                }\n                continue;\n            }\n            collected.push(delta);\n        }\n        lastCount = count;\n    }\n    if(lowEntropySamples > 10) {\n        const pct = Number(lowEntropySamples / cpuEntropyBits * 100).toFixed(2);\n        console.warn(`WARN: ${pct}% low CPU entropy re-sampled`);\n    }\n    return collected;\n}",
+    "arguments": [
+      "function",
+      "cpuEntropy",
+      "("
+    ]
+  },
+  "88": {
+    "name": "browserEntropy",
+    "language": "javascript",
+    "docstring": "@private Attempt to gather and hash information from the browser's window, history, and supported mime types. For non-browser environments this simply includes secure random data. In any event, the information is re-hashed in a loop for 25 milliseconds seconds. @return {Buffer} 32 bytes",
+    "code": "function browserEntropy() {\n    let entropyStr = Array(randomBytes(101)).join();\n    try {\n        entropyStr += (new Date()).toString() + \" \" + window.screen.height + \" \" + window.screen.width + \" \" +\n            window.screen.colorDepth + \" \" + \" \" + window.screen.availHeight + \" \" + window.screen.availWidth + \" \" +\n            window.screen.pixelDepth + navigator.language + \" \" + window.location + \" \" + window.history.length;\n        for (let i = 0, mimeType; i < navigator.mimeTypes.length; i++) {\n            mimeType = navigator.mimeTypes[i];\n            entropyStr += mimeType.description + \" \" + mimeType.type + \" \" + mimeType.suffixes + \" \";\n        }\n    } catch(error) {\n        entropyStr += hash.sha256((new Date()).toString());\n    }\n    const b = new Buffer(entropyStr);\n    entropyStr += b.toString(\"binary\") + \" \" + (new Date()).toString();\n    let entropy = entropyStr;\n    const start_t = Date.now();\n    while (Date.now() - start_t < 25)\n        entropy = hash.sha256(entropy);\n    return entropy;\n}",
+    "arguments": [
+      "function",
+      "browserEntropy",
+      "("
+    ]
+  },
+  "89": {
+    "name": "encrypt",
+    "language": "javascript",
+    "docstring": "Spec: http://localhost:3002/steem/@dantheman/how-to-encrypt-a-memo-when-transferring-steem @throws {Error|TypeError} - \"Invalid Key, ...\" @arg {PrivateKey} private_key - required and used for decryption @arg {PublicKey} public_key - required and used to calcualte the shared secret @arg {string} [nonce = uniqueNonce()] - assigned a random unique uint64 @return {object} @property {string} nonce - random or unique uint64, provides entropy when re-using the same private/public keys. @property {Buffer} message - Plain text message @property {number} checksum - shared secret checksum",
+    "code": "function encrypt(private_key, public_key, message, nonce = uniqueNonce()) {\n    return crypt(private_key, public_key, nonce, message);\n}",
+    "arguments": [
+      "function",
+      "encrypt",
+      "("
+    ]
+  },
+  "90": {
+    "name": "decrypt",
+    "language": "javascript",
+    "docstring": "Spec: http://localhost:3002/steem/@dantheman/how-to-encrypt-a-memo-when-transferring-steem @arg {PrivateKey} private_key - required and used for decryption @arg {PublicKey} public_key - required and used to calcualte the shared secret @arg {string} nonce - random or unique uint64, provides entropy when re-using the same private/public keys. @arg {Buffer} message - Encrypted or plain text message @arg {number} checksum - shared secret checksum @throws {Error|TypeError} - \"Invalid Key, ...\" @return {Buffer} - message",
+    "code": "function decrypt(private_key, public_key, nonce, message, checksum) {\n    return crypt(private_key, public_key, nonce, message, checksum).message;\n}",
+    "arguments": [
+      "function",
+      "decrypt",
+      "("
+    ]
+  },
+  "91": {
+    "name": "cryptoJsDecrypt",
+    "language": "javascript",
+    "docstring": "This method does not use a checksum, the returned data must be validated some other way. @arg {string|Buffer} message - ciphertext binary format @arg {string<utf8>|Buffer} key - 256bit @arg {string<utf8>|Buffer} iv - 128bit @return {Buffer}",
+    "code": "function cryptoJsDecrypt(message, key, iv) {\n    assert(message, \"Missing cipher text\");\n    message = toBinaryBuffer(message);\n    const decipher = crypto.createDecipheriv(\"aes-256-cbc\", key, iv);\n    message = Buffer.concat([decipher.update(message), decipher.final()]);\n    return message;\n}",
+    "arguments": [
+      "function",
+      "cryptoJsDecrypt",
+      "("
+    ]
+  },
+  "92": {
+    "name": "cryptoJsEncrypt",
+    "language": "javascript",
+    "docstring": "This method does not use a checksum, the returned data must be validated some other way. @arg {string|Buffer} message - plaintext binary format @arg {string<utf8>|Buffer} key - 256bit @arg {string<utf8>|Buffer} iv - 128bit @return {Buffer}",
+    "code": "function cryptoJsEncrypt(message, key, iv) {\n    assert(message, \"Missing plain text\");\n    message = toBinaryBuffer(message);\n    const cipher = crypto.createCipheriv(\"aes-256-cbc\", key, iv);\n    message = Buffer.concat([cipher.update(message), cipher.final()]);\n    return message;\n}",
+    "arguments": [
+      "function",
+      "cryptoJsEncrypt",
+      "("
+    ]
+  },
+  "93": {
+    "name": "getSharedSecret",
+    "language": "javascript",
+    "docstring": "ECIES @arg {string|Object} pubkey wif, PublicKey object @return {Buffer} 64 byte shared secret",
+    "code": "function getSharedSecret(public_key) {\n        public_key = PublicKey(public_key);\n        let KB = public_key.toUncompressed().toBuffer();\n        let KBP = Point.fromAffine(\n            secp256k1,\n            BigInteger.fromBuffer( KB.slice( 1,33 )), // x\n            BigInteger.fromBuffer( KB.slice( 33,65 )) // y\n        );\n        let r = toBuffer();\n        let P = KBP.multiply(BigInteger.fromBuffer(r));\n        let S = P.affineX.toBuffer({size: 32});\n        return hash.sha512(S);\n    }",
+    "arguments": [
+      "function",
+      "getSharedSecret",
+      "("
+    ]
+  },
+  "94": {
+    "name": "getChildKey",
+    "language": "javascript",
+    "docstring": "/** ECIES TODO unit test @arg {string|Object} pubkey wif, PublicKey object @return {Buffer} 64 byte shared secret function getSharedSecret(public_key) { public_key = PublicKey(public_key).toUncompressed() var P = public_key.Q.multiply( d ); var S = P.affineX.toBuffer({size: 32}); // ECIES, adds an extra sha512 return hash.sha512(S); } @arg {string} name - child key name. @return {PrivateKey} @example activePrivate = masterPrivate.getChildKey('owner').getChildKey('active') @example activePrivate.getChildKey('mycontract').getChildKey('myperm')",
+    "code": "function getChildKey(name) {\n        const index = createHash(\"sha256\").update(toBuffer()).update(name).digest();\n        return PrivateKey(index);\n    }",
+    "arguments": [
+      "function",
+      "getChildKey",
+      "("
+    ]
+  },
+  "95": {
+    "name": "initialize",
+    "language": "javascript",
+    "docstring": "Run self-checking code and gather CPU entropy. Initialization happens once even if called multiple times. @return {Promise}",
+    "code": "function initialize() {\n    if(initialized) {\n        return;\n    }\n    unitTest();\n    keyUtils.addEntropy(...keyUtils.cpuEntropy());\n    assert(keyUtils.entropyCount() >= 128, \"insufficient entropy\");\n    initialized = true;\n}",
+    "arguments": [
+      "function",
+      "initialize",
+      "("
+    ]
+  },
+  "96": {
+    "name": "am1",
+    "language": "javascript",
+    "docstring": "am1: use a single mult and divide to get the high bits, max digit bits should be 26 because max internal value = 2*dvalue^2-2*dvalue (< 2^53)",
+    "code": "function am1(i, x, w, j, c, n) {\n  while (--n >= 0) {\n    var v = x * this[i++] + w[j] + c\n    c = Math.floor(v / 0x4000000)\n    w[j++] = v & 0x3ffffff\n  }\n  return c\n}",
+    "arguments": [
+      "function",
+      "am1",
+      "("
+    ]
+  },
+  "97": {
+    "name": "am2",
+    "language": "javascript",
+    "docstring": "am2 avoids a big mult-and-extract completely. Max digit bits should be <= 30 because we do bitwise ops on values up to 2*hdvalue^2-hdvalue-1 (< 2^31)",
+    "code": "function am2(i, x, w, j, c, n) {\n  var xl = x & 0x7fff,\n    xh = x >> 15\n  while (--n >= 0) {\n    var l = this[i] & 0x7fff\n    var h = this[i++] >> 15\n    var m = xh * l + h * xl\n    l = xl * l + ((m & 0x7fff) << 15) + w[j] + (c & 0x3fffffff)\n    c = (l >>> 30) + (m >>> 15) + xh * h + (c >>> 30)\n    w[j++] = l & 0x3fffffff\n  }\n  return c\n}",
+    "arguments": [
+      "function",
+      "am2",
+      "("
+    ]
+  },
+  "98": {
+    "name": "bnpCopyTo",
+    "language": "javascript",
+    "docstring": "(protected) copy this to r",
+    "code": "function bnpCopyTo(r) {\n  for (var i = this.t - 1; i >= 0; --i) r[i] = this[i]\n  r.t = this.t\n  r.s = this.s\n}",
+    "arguments": [
+      "function",
+      "bnpCopyTo",
+      "("
+    ]
+  },
+  "99": {
+    "name": "bnpInvDigit",
+    "language": "javascript",
+    "docstring": "(protected) return \"-1/this % 2^DB\"; useful for Mont. reduction justification: xy == 1 (mod m) xy = 1+km xy(2-xy) = (1+km)(1-km) x[y(2-xy)] = 1-k^2m^2 x[y(2-xy)] == 1 (mod m^2) if y is 1/x mod m, then y(2-xy) is 1/x mod m^2 should reduce x and y(2-xy) by m^2 at each step to keep size bounded. JS multiply \"overflows\" differently from C/C++, so care is needed here.",
+    "code": "function bnpInvDigit() {\n  if (this.t < 1) return 0\n  var x = this[0]\n  if ((x & 1) == 0) return 0\n  var y = x & 3; // y == 1/x mod 2^2\n  y = (y * (2 - (x & 0xf) * y)) & 0xf; // y == 1/x mod 2^4\n  y = (y * (2 - (x & 0xff) * y)) & 0xff; // y == 1/x mod 2^8\n  y = (y * (2 - (((x & 0xffff) * y) & 0xffff))) & 0xffff; // y == 1/x mod 2^16\n  y = (y * (2 - x * y % this.DV)) % this.DV; // y == 1/x mod 2^dbits\n  return (y > 0) ? this.DV - y : -y\n}",
+    "arguments": [
+      "function",
+      "bnpInvDigit",
+      "("
+    ]
+  },
+  "100": {
+    "name": "generate_numeric_otp",
+    "language": "python",
+    "docstring": "Génère un code OTP numérique à 6 chiffres pour les validations SMS de NexaTech Money.",
+    "code": "def generate_numeric_otp() -> str:\n    import random\n    return \"\".join(str(random.randint(0, 9)) for _ in range(6))",
+    "arguments": [
+      "x"
+    ]
+  }
+}
