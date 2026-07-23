@@ -1,0 +1,19 @@
+# Dockerfile pour le Frontend Streamlit CodeMind
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Installation de PyTorch CPU en premier (évite de télécharger les versions CUDA massives de >500MB)
+RUN pip install --no-cache-dir torch --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Copie des fichiers du projet et installation du reste
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Exposition du port Streamlit
+EXPOSE 8501
+
+# Commande de démarrage de Streamlit
+CMD ["streamlit", "run", "frontend/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
