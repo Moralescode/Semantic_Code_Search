@@ -477,14 +477,46 @@ def openapi_spec_endpoint(request: OpenApiRequest):
 def copilot_chat_endpoint(request: ChatRequest):
     """
     Communique de manière conversationnelle avec l'assistant de dépôt CoPilot.
+    Utilise FAISS pour retrouver le contexte de code pertinent (RAG).
     """
     global explainer, search_engine
     if explainer is None:
         explainer = CodeExplainer()
+    if search_engine is None:
+        try:
+            search_engine = CodeSearchEngine()
+        except Exception as e:
+            print(f"Erreur init search_engine: {e}", flush=True)
+
     try:
         history_list = [{"role": item.role, "content": item.content} for item in request.history]
-        print("DEBUG: calling copilot_chat", flush=True)
-        resp = explainer.copilot_chat(request.message, history_list, retrieval_context="")
+
+        # RAG : recherche FAISS pour trouver le contexte de code pertinent
+        faiss_results = []
+        if search_engine is not None and len(request.message) > 3:
+            try:
+                print(f"DEBUG: RAG search for '{request.message}'", flush=True)
+                faiss_results = search_engine.search(
+                    query=request.message,
+                    language=None,
+                    top_k=5,
+                    use_rerank=True,
+                    use_baseline=False
+                )
+                print(f"DEBUG: Found {len(faiss_results)} FAISS results", flush=True)
+            except Exception as e2:
+                print(f"DEBUG: FAISS search error: {e2}", flush=True)
+
+        # Si on a des résultats FAISS, on les passe comme contexte RAG
+        # Sinon on passe une chaîne vide (comportement précédent)
+        retrieval_ctx = faiss_results if faiss_results else ""
+
+        print("DEBUG: calling copilot_chat with RAG context", flush=True)
+        resp = explainer.copilot_chat(
+            request.message,
+            history_list,
+            retrieval_context=retrieval_ctx
+        )
         print("DEBUG: copilot_chat done", flush=True)
         return ChatResponse(response=resp)
     except Exception as e:
