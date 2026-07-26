@@ -23,3 +23,4 @@ declare module 'plotly.js' {
   const plotly: any;
   export default plotly;
 }
+

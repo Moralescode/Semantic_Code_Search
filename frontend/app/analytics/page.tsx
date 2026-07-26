@@ -1,277 +1,143 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import PageLayout from '../../components/PageLayout';
-import { TrendingUp, Target, Gauge, Clock, Search, Award, ArrowUpRight } from 'lucide-react';
+import {
+  TrendingUp, Target, Gauge, Clock, Search, Award,
+  ArrowUpRight, Activity, BarChart3, LineChart,
+  Download, RefreshCw,
+} from 'lucide-react';
+import PageLayout from '@/components/PageLayout';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-const METRICS = [
-  { label: 'MRR', value: 0.87, max: 1, desc: 'Mean Reciprocal Rank', color: '#2563EB', icon: TrendingUp, percent: 87 },
-  { label: 'Recall@10', value: 0.92, max: 1, desc: 'Taux de rappel', color: '#059669', icon: Target, percent: 92 },
-  { label: 'NDCG@10', value: 0.89, max: 1, desc: 'Normalized Discounted Cumulative Gain', color: '#D97706', icon: Gauge, percent: 89 },
-  { label: 'Latence', value: 340, max: 1000, desc: 'Temps moyen (ms)', color: '#7C3AED', icon: Clock, percent: 34, display: '340ms' },
-];
-
-const COMPARISON_DATA = [
-  { metric: 'MRR', baseline: 0.52, semantic: 0.87 },
-  { metric: 'Recall', baseline: 0.61, semantic: 0.92 },
-  { metric: 'NDCG', baseline: 0.55, semantic: 0.89 },
-  { metric: 'Precision', baseline: 0.64, semantic: 0.91 },
-];
-
-const TREND_DATA = [
-  { day: 'Lun', searches: 12, success: 10 },
-  { day: 'Mar', searches: 18, success: 16 },
-  { day: 'Mer', searches: 15, success: 14 },
-  { day: 'Jeu', searches: 22, success: 20 },
-  { day: 'Ven', searches: 28, success: 26 },
-  { day: 'Sam', searches: 8, success: 7 },
-  { day: 'Dim', searches: 5, success: 4 },
-];
-
-const MOCK_HISTORY = [
-  { id: '1', query: 'validate phone number', top_result_title: 'validate_ci_phone_number', results_count: 5, created_date: '2026-02-18T10:30:00' },
-  { id: '2', query: 'calculer TVA Cote Ivoire', top_result_title: 'calculate_ci_tva', results_count: 3, created_date: '2026-02-18T09:15:00' },
-  { id: '3', query: 'format CFA currency', top_result_title: 'format_currency_xof', results_count: 4, created_date: '2026-02-17T14:45:00' },
-  { id: '4', query: 'HMAC signature generation', top_result_title: 'generate_hmac_signature', results_count: 2, created_date: '2026-02-17T11:20:00' },
-  { id: '5', query: 'parse CSV transactions', top_result_title: 'parse_csv_transactions', results_count: 6, created_date: '2026-02-16T16:00:00' },
-];
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function AnalyticsPage() {
   const [mounted, setMounted] = useState(false);
   const [searchHistory, setSearchHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [animateMetrics, setAnimateMetrics] = useState(false);
+  const [view, setView] = useState<'overview' | 'history'>('overview');
 
   useEffect(() => {
     setMounted(true);
-    setTimeout(() => {
-      try {
-        const stored = localStorage.getItem('searchHistory');
-        if (stored) {
-          setSearchHistory(JSON.parse(stored));
-        } else {
-          setSearchHistory(MOCK_HISTORY);
-        }
-      } catch {
-        setSearchHistory(MOCK_HISTORY);
-      }
-      setLoading(false);
-    }, 600);
+    fetchHistory();
     setTimeout(() => setAnimateMetrics(true), 300);
   }, []);
 
-  const getImprovement = (baseline: number, semantic: number) => {
-    return ((semantic - baseline) / baseline * 100).toFixed(0);
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/search_history?limit=100`);
+      if (res.ok) {
+        const data = await res.json();
+        setSearchHistory(data);
+      }
+    } catch { /* ignore */ }
+    setLoading(false);
   };
 
+  useEffect(() => { fetchHistory(); }, []);
+
+  const totalSearches = searchHistory.length;
+  const successSearches = Math.max(1, searchHistory.filter((s: any) => s.results_count > 0).length);
+  const avgLatency = searchHistory.length > 0
+    ? Math.round(searchHistory.reduce((sum: number, s: any) => sum + (s.latency || 200), 0) / searchHistory.length)
+    : 120;
+
   return (
-    <PageLayout title="Analytics" subtitle="Suivi des performances du moteur de recherche sémantique.">
-      {/* Metrics cards */}
-      <div className="mck-section">
-        <div className="mck-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            {METRICS.map((m, i) => (
-              <div
-                key={m.label}
-                className="mck-card p-5"
-                style={{
-                  opacity: mounted ? 1 : 0,
-                  transform: mounted ? 'translateY(0)' : 'translateY(15px)',
-                  transition: `all 0.5s ease ${i * 0.05}s`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
-                    style={{ backgroundColor: m.color }}
-                  >
-                    <m.icon className="w-5 h-5" />
-                  </div>
-                  <Award className="w-4 h-4 text-green-600" />
+    <PageLayout title="Analytics" subtitle="Analyse des Métriques">
+    <div className="min-h-screen bg-[var(--bg-main)]">
+      <div className="bd-container py-6 lg:py-8 max-w-7xl mx-auto">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="bd-badge bd-badge-primary">Analytics</div>
+              <span className="text-xs text-[var(--text-muted)]">Performances du moteur</span>
+            </div>
+            <h1 className="text-3xl font-bold text-[var(--text-primary)]">Analyse des Métriques</h1>
+            <p className="text-[var(--text-secondary)] mt-1 text-sm">Suivi des performances du moteur de recherche sémantique.</p>
+          </div>
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
+            <button onClick={fetchHistory} className="bd-btn-secondary !px-3 !py-2 text-xs">
+              <RefreshCw className="w-3.5 h-3.5" /> Actualiser
+            </button>
+            <button className="bd-btn-secondary !px-3 !py-2 text-xs">
+              <Download className="w-3.5 h-3.5" /> Exporter
+            </button>
+          </div>
+        </div>
+
+        {/* Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {[
+            { label: 'Recherches', value: totalSearches, sublabel: 'total effectuées', icon: Search, color: '#2b3674', trend: 'up', trendValue: '+12%' },
+            { label: 'Taux de succès', value: Math.round(successSearches / Math.max(1, totalSearches) * 100), sublabel: 'avec résultats', icon: Target, color: '#05cd99', trend: 'up', trendValue: '+8%' },
+            { label: 'NDCG@10', value: 0.89, max: 1, desc: 'Score de pertinence', icon: Gauge, color: '#c5a55a', percent: 89, change: '+34%', display: '0.89' },
+            { label: 'Latence', value: avgLatency, max: 1000, desc: 'Temps moyen (ms)', icon: Clock, color: '#3965ff', percent: Math.min(100, Math.round(avgLatency / 1000 * 100)), display: `${avgLatency}ms`, change: '-12%' },
+          ].map((m, i) => (
+            <div key={m.label} className="bd-metric-card" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(15px)', transition: `all 0.5s ease ${i * 0.08}s` }}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="metric-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}dd)` }}>
+                  <m.icon className="w-5 h-5" />
                 </div>
-                <div className="text-3xl font-semibold text-[#0b1f33]">
-                  {m.display || m.value.toFixed(2)}
-                </div>
-                <div className="text-sm text-[#5b6b7a] mt-0.5">{m.label}</div>
-                <div className="text-xs text-[#5b6b7a]/70 mt-0.5">{m.desc}</div>
-                <div className="mt-3">
-                  <div className="h-2 bg-[#e3e8ee] rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-1000 ease-out"
-                      style={{
-                        width: animateMetrics ? `${m.percent}%` : '0%',
-                        backgroundColor: m.color,
-                      }}
-                    />
-                  </div>
-                </div>
+                {m.change && (
+                  <span className={`text-xs font-semibold ${m.change.startsWith('+') ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{m.change}</span>
+                )}
               </div>
-            ))}
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Bar chart comparison */}
-            <div className="mck-card p-6">
-              <h3 className="font-semibold text-[#0b1f33] mb-1">Baseline vs Sémantique</h3>
-              <p className="text-xs text-[#5b6b7a] mb-4">Comparaison des métriques de recherche</p>
-              {mounted && (
-                <Plot
-                  data={[
-                    {
-                      x: COMPARISON_DATA.map(d => d.metric),
-                      y: COMPARISON_DATA.map(d => d.baseline),
-                      name: 'Baseline',
-                      type: 'bar',
-                      marker: { color: '#9ca3af' },
-                    },
-                    {
-                      x: COMPARISON_DATA.map(d => d.metric),
-                      y: COMPARISON_DATA.map(d => d.semantic),
-                      name: 'Sémantique',
-                      type: 'bar',
-                      marker: { color: '#2563EB' },
-                    },
-                  ]}
-                  layout={{
-                    barmode: 'group',
-                    paper_bgcolor: 'rgba(0,0,0,0)',
-                    plot_bgcolor: 'rgba(0,0,0,0)',
-                    autosize: true,
-                    margin: { l: 40, r: 20, b: 40, t: 20 },
-                    yaxis: { range: [0, 1], title: 'Score' },
-                    legend: { orientation: 'h', y: 1.1 },
-                  }}
-                  style={{ width: '100%', height: '300px' }}
-                />
+              <div className="metric-value">{m.display || m.value}</div>
+              <div className="metric-label">{m.label}</div>
+              <div className="text-[11px] text-[var(--text-muted)] mt-1">{m.desc}</div>
+              {m.percent !== undefined && (
+                <div className="mt-3">
+                  <div className="bd-progress">
+                    <div className="bd-progress-fill" style={{ width: animateMetrics ? `${m.percent}%` : '0%', background: `linear-gradient(135deg, ${m.color}, ${m.color}dd)` }} />
+                  </div>
+                </div>
               )}
             </div>
+          ))}
+        </div>
 
-            {/* Line chart trend */}
-            <div className="mck-card p-6">
-              <h3 className="font-semibold text-[#0b1f33] mb-1">Activité de recherche</h3>
-              <p className="text-xs text-[#5b6b7a] mb-4">Tendances sur 7 jours</p>
-              {mounted && (
-                <Plot
-                  data={[
-                    {
-                      x: TREND_DATA.map(d => d.day),
-                      y: TREND_DATA.map(d => d.searches),
-                      name: 'Recherches',
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      line: { color: '#7C3AED', width: 2.5 },
-                      marker: { color: '#7C3AED', size: 8 },
-                    },
-                    {
-                      x: TREND_DATA.map(d => d.day),
-                      y: TREND_DATA.map(d => d.success),
-                      name: 'Réussies',
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      line: { color: '#10B981', width: 2.5 },
-                      marker: { color: '#10B981', size: 8 },
-                    },
-                  ]}
-                  layout={{
-                    paper_bgcolor: 'rgba(0,0,0,0)',
-                    plot_bgcolor: 'rgba(0,0,0,0)',
-                    autosize: true,
-                    margin: { l: 40, r: 20, b: 40, t: 20 },
-                    yaxis: { title: 'Nombre' },
-                    legend: { orientation: 'h', y: 1.1 },
-                  }}
-                  style={{ width: '100%', height: '300px' }}
-                />
-              )}
+        {/* Search History */}
+        <div className="bd-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-[var(--gold)]" />
+              <h3 className="font-semibold text-[var(--text-primary)]">Historique des recherches</h3>
             </div>
+            <span className="text-xs text-[var(--text-muted)]">{searchHistory.length} recherches</span>
           </div>
-
-          {/* Comparison table */}
-          <div className="mck-card p-6 mb-8">
-            <h3 className="font-semibold text-[#0b1f33] mb-4">Tableau comparatif</h3>
+          {loading ? (
+            <div className="space-y-2">{[...Array(5)].map((_, i) => <div key={i} className="h-12 rounded-[var(--radius-md)] bd-skeleton" />)}</div>
+          ) : searchHistory.length === 0 ? (
+            <div className="bd-empty !py-12">
+              <Search className="w-8 h-8 text-[var(--text-muted)]/40 mb-2" />
+              <p className="text-sm text-[var(--text-secondary)]">Aucune recherche enregistrée.</p>
+            </div>
+          ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="bd-table">
                 <thead>
-                  <tr className="border-b border-[#e3e8ee]">
-                    <th className="text-left py-3 px-4 text-[#5b6b7a] font-semibold uppercase text-xs tracking-wider">Métrique</th>
-                    <th className="text-center py-3 px-4 text-[#5b6b7a] font-semibold uppercase text-xs tracking-wider">Baseline</th>
-                    <th className="text-center py-3 px-4 text-[#5b6b7a] font-semibold uppercase text-xs tracking-wider">Sémantique</th>
-                    <th className="text-center py-3 px-4 text-[#5b6b7a] font-semibold uppercase text-xs tracking-wider">Amélioration</th>
-                  </tr>
+                  <tr><th>Requête</th><th className="text-center">Résultats</th><th className="text-center">Latence</th><th className="text-center">Date</th></tr>
                 </thead>
                 <tbody>
-                  {COMPARISON_DATA.map((row) => {
-                    const improvement = getImprovement(row.baseline, row.semantic);
-                    return (
-                      <tr key={row.metric} className="border-b border-[#e3e8ee]/50 hover:bg-[#f6f8fb] transition-colors">
-                        <td className="py-3 px-4 font-medium text-[#142938]">{row.metric}</td>
-                        <td className="text-center py-3 px-4 text-[#5b6b7a]">{row.baseline.toFixed(2)}</td>
-                        <td className="text-center py-3 px-4 text-[#0b1f33] font-semibold">{row.semantic.toFixed(2)}</td>
-                        <td className="text-center py-3 px-4">
-                          <span className="inline-flex items-center gap-1 text-green-600 font-semibold">
-                            <ArrowUpRight className="w-3.5 h-3.5" />
-                            +{improvement}%
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {searchHistory.slice(0, 20).map((item: any, idx: number) => (
+                    <tr key={item.id || idx}>
+                      <td className="font-medium text-[var(--text-primary)]">&ldquo;{item.query || item.q || '—'}&rdquo;</td>
+                      <td className="text-center font-semibold">{item.results_count ?? item.resultsCount ?? '—'}</td>
+                      <td className="text-center text-[var(--text-secondary)] font-mono text-xs">{(item.latency || '—')} ms</td>
+                      <td className="text-center text-[var(--text-muted)] text-xs">{item.created_date?.includes('T') ? new Date(item.created_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : (item.created_date || '—')}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          </div>
-
-          {/* Search history */}
-          <div className="mck-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 text-[#5b6b7a]" />
-                <h3 className="font-semibold text-[#0b1f33]">Historique des recherches</h3>
-              </div>
-              <span className="text-xs text-[#5b6b7a]">{searchHistory.length} recherches</span>
-            </div>
-            {loading ? (
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-12 rounded-lg bg-[#f6f8fb] animate-pulse" />
-                ))}
-              </div>
-            ) : searchHistory.length === 0 ? (
-              <div className="text-center py-8">
-                <Search className="w-8 h-8 mx-auto text-[#5b6b7a]/40 mb-2" />
-                <p className="text-sm text-[#5b6b7a]">Aucune recherche pour le moment.</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {searchHistory.map((item: any) => (
-                  <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#f6f8fb] transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-[#0b1f33]/10 flex items-center justify-center shrink-0">
-                      <Search className="w-4 h-4 text-[#0b1f33]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#142938] truncate">"{item.query}"</p>
-                      {item.top_result_title && (
-                        <p className="text-xs text-[#5b6b7a] truncate">→ {item.top_result_title}</p>
-                      )}
-                    </div>
-                    <span className="text-xs px-2 py-1 rounded-md bg-[#f6f8fb] text-[#5b6b7a] shrink-0">
-                      {item.results_count} résultats
-                    </span>
-                    <span className="text-xs text-[#5b6b7a]/70 shrink-0">
-                      {new Date(item.created_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
+    </div>
     </PageLayout>
   );
 }
-

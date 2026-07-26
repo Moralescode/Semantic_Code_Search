@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   backend:
@@ -8,22 +8,20 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./backend:/app/backend
+      - ./data:/app/data
     environment:
-      - PYTHONPATH=.
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-    restart: always
+      - PYTHONPATH=backend
+    restart: unless-stopped
 
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
     ports:
       - "8501:8501"
-    volumes:
-      - .:/app
-    environment:
-      - PYTHONPATH=.
     depends_on:
       - backend
-    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    restart: unless-stopped

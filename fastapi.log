@@ -1,40 +1,0 @@
-INFO:     Started server process [2546]
-INFO:     Waiting for application startup.
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Initialisation du moteur de recherche sémantique CodeMind...
-Chargement du modèle de base (Baseline)...
-Loading weights:   0%|          | 0/39 [00:00<?, ?it/s]Loading weights: 100%|██████████| 39/39 [00:00<00:00, 27501.32it/s]
-[transformers] [1mBertModel LOAD REPORT[0m from: prajjwal1/bert-tiny
-Key                                        | Status     |  | 
--------------------------------------------+------------+--+-
-cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
-cls.predictions.decoder.weight             | UNEXPECTED |  | 
-cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
-cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
-cls.predictions.decoder.bias               | UNEXPECTED |  | 
-cls.seq_relationship.bias                  | UNEXPECTED |  | 
-cls.seq_relationship.weight                | UNEXPECTED |  | 
-cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
-cls.predictions.bias                       | UNEXPECTED |  | 
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-Chargement du modèle optimisé depuis : models/saved_biencoder
-Loading weights:   0%|          | 0/39 [00:00<?, ?it/s]Loading weights: 100%|██████████| 39/39 [00:00<00:00, 26101.46it/s]
-[transformers] [1mBertModel LOAD REPORT[0m from: prajjwal1/bert-tiny
-Key                                        | Status     |  | 
--------------------------------------------+------------+--+-
-cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
-cls.predictions.decoder.weight             | UNEXPECTED |  | 
-cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
-cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
-cls.predictions.decoder.bias               | UNEXPECTED |  | 
-cls.seq_relationship.bias                  | UNEXPECTED |  | 
-cls.seq_relationship.weight                | UNEXPECTED |  | 
-cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
-cls.predictions.bias                       | UNEXPECTED |  | 
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

@@ -10,20 +10,21 @@ Plateforme sémantique de recherche et d’assistance code pour le référentiel
 
 ## Lancement
 ```bash
-# Backend
+# Backend (from backend/ directory)
+cd backend
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
 # Frontend
 cd frontend
 npm install
-npm run build
-npm start
+npm run dev
 ```
 
 ## URLs utiles
 - Frontend : http://localhost:8501
 - Backend : http://localhost:8000
 - Health : http://localhost:8000/health
+- API Docs : http://localhost:8000/docs
 
 ## Pages
 - `/` : Accueil / login
@@ -35,7 +36,7 @@ npm start
 - `/generate` : Générateur de code IA
 
 ## Configuration
-- `configs/config.yaml` : modèle, index FAISS, LLM provider, sécurité
+- `backend/configs/config.yaml` : modèle, index FAISS, LLM provider, sécurité
 
 ## Auteur
 - NexaTech Solutions — Abidjan, Côte d'Ivoire

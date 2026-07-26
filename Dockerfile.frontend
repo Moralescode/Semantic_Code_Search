@@ -1,19 +1,25 @@
-# Dockerfile pour le Frontend Streamlit CodeMind
-FROM python:3.11-slim
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Installation de PyTorch CPU en premier (évite de télécharger les versions CUDA massives de >500MB)
-RUN pip install --no-cache-dir torch --extra-index-url https://download.pytorch.org/whl/cpu
-
-# Copie des fichiers du projet et installation du reste
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
+RUN npm run build
 
-# Exposition du port Streamlit
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/next.config.js ./next.config.js
+
 EXPOSE 8501
 
-# Commande de démarrage de Streamlit
-CMD ["streamlit", "run", "frontend/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+CMD ["npm", "start"]

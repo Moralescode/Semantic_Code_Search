@@ -9,21 +9,25 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "axios": "1.6.2",
+    "clsx": "^2.1.1",
+    "elevenlabs": "^1.59.0",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "0.294.0",
+    "next": "14.2.5",
+    "plotly.js": "2.26.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "next": "14.2.5",
-    "lucide-react": "0.294.0",
-    "plotly.js": "2.26.2",
     "react-plotly.js": "2.6.0",
-    "axios": "1.6.2"
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
-    "typescript": "5.0.4",
     "@types/node": "20.0.0",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
-    "tailwindcss": "3.3.0",
+    "autoprefixer": "10.4.0",
     "postcss": "8.4.0",
-    "autoprefixer": "10.4.0"
+    "tailwindcss": "3.3.0",
+    "typescript": "5.0.4"
   }
 }

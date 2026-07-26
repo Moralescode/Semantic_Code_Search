@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import PageLayout from '../../components/PageLayout';
-import { Sparkles, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import { Sparkles, Loader2, Code2, FileCode, BookOpen, Copy, Check } from 'lucide-react';
+import PageLayout from '@/components/PageLayout';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -14,6 +13,7 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false);
   const [indexing, setIndexing] = useState(false);
   const [indexed, setIndexed] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleGenerate = async () => {
     if (!description.trim()) return;
@@ -21,11 +21,13 @@ export default function GeneratePage() {
     setResult(null);
     setIndexed(false);
     try {
-      const res = await axios.post(`${BASE_URL}/generate`, {
-        description,
-        language: language.toLowerCase()
+      const res = await fetch(`${BASE_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description, language: language.toLowerCase() }),
       });
-      setResult(res.data);
+      const data = await res.json();
+      setResult(data);
     } catch (err) {
       console.error(err);
       alert('Erreur lors de la génération du code.');
@@ -43,16 +45,18 @@ export default function GeneratePage() {
         language: language.toLowerCase(),
         docstring: result.docstring,
         code: result.code,
-        arguments: ['x']
+        arguments: ['x'],
       };
-
-      const res = await axios.post(`${BASE_URL}/index_code`, newEntry);
-
-      if (res.data.success) {
+      const res = await fetch(`${BASE_URL}/index_code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEntry),
+      });
+      const data = await res.json();
+      if (data.success) {
         setIndexed(true);
-        alert('Fonction indexée avec succès dans FAISS !');
       } else {
-        throw new Error(res.data.message || 'Indexation failed');
+        throw new Error(data.message || 'Indexation failed');
       }
     } catch (err) {
       console.error(err);
@@ -62,71 +66,188 @@ export default function GeneratePage() {
     }
   };
 
+  const handleCopy = () => {
+    if (result?.code) {
+      navigator.clipboard.writeText(result.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const languageOptions = ['Python', 'JavaScript', 'Go', 'Java', 'PHP', 'Ruby'];
+
   return (
-    <PageLayout title="Générateur de Code IA" subtitle="Générez du code propre à l'aide de l'IA et insérez-le directement dans notre index FAISS.">
-      <div className="mck-section">
-        <div className="mck-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="mck-card p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-[#0b1f33]">📝 Spécifications</h3>
+    <PageLayout title="Générer" subtitle="Générateur de Code IA">
+    <div className="min-h-screen bg-[var(--bg-main)]">
+      <div className="bd-container py-6 lg:py-8 max-w-6xl mx-auto">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="bd-badge bd-badge-gold">Générer</div>
+          </div>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Générateur de Code IA</h1>
+          <p className="text-[var(--text-secondary)] mt-1 text-sm">
+            Générez du code propre à l&apos;aide de l&apos;IA et insérez-le directement dans notre index FAISS.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left: Input */}
+          <div className="bd-card p-6 space-y-5">
+            <div className="flex items-center gap-2">
+              <Code2 className="w-5 h-5 text-[var(--gold)]" />
+              <h3 className="font-semibold text-[var(--text-primary)]">Spécifications</h3>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">
+                Décrivez la fonction à générer
+              </label>
               <textarea
-                className="mck-input min-h-[120px]"
-                placeholder="Décrivez la fonction..."
+                className="bd-input min-h-[140px] resize-y"
+                placeholder="Ex: fonction qui valide un numéro de téléphone ivoirien avec regex..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <select
-                className="mck-input"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                <option value="Python">Python</option>
-                <option value="JavaScript">JavaScript</option>
-              </select>
-              <button
-                onClick={handleGenerate}
-                disabled={loading}
-                className="mck-btn-primary w-full"
-              >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                <span>{loading ? 'Génération en cours...' : 'Générer'}</span>
-              </button>
             </div>
 
-            <div className="mck-card p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-[#0b1f33]">💻 Résultat</h3>
-              {result ? (
-                <div className="space-y-3">
-                  <div>
-                    <span className="text-xs font-semibold text-[#5b6b7a] uppercase tracking-wider">Nom :</span>
-                    <div className="text-lg font-semibold text-[#0b1f33] mt-1">{result.name}</div>
+            <div>
+              <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">
+                Langage de programmation
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {languageOptions.map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setLanguage(l)}
+                    className={`px-3.5 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-all border ${
+                      language === l
+                        ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-sm'
+                        : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--primary)]/30'
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !description.trim()}
+              className="bd-btn-primary w-full justify-center py-3"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Sparkles className="w-5 h-5" />
+              )}
+              <span>{loading ? 'Génération en cours...' : 'Générer le code'}</span>
+            </button>
+
+            {/* Tips */}
+            <div className="p-4 rounded-[var(--radius-md)] bg-[var(--surface-alt)] border border-[var(--border)]">
+              <h4 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <BookOpen className="w-3 h-3" /> Conseils
+              </h4>
+              <ul className="space-y-1">
+                {[
+                  'Soyez précis dans la description de la fonction',
+                  'Mentionnez les paramètres d\'entrée et de sortie',
+                  'Indiquez le contexte métier (ex: TVA, téléphonie)',
+                ].map((tip, i) => (
+                  <li key={i} className="text-xs text-[var(--text-secondary)] flex items-start gap-2">
+                    <span className="text-[var(--gold)] mt-0.5">•</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Right: Result */}
+          <div className="bd-card p-6 space-y-5">
+            <div className="flex items-center gap-2">
+              <FileCode className="w-5 h-5 text-[var(--gold)]" />
+              <h3 className="font-semibold text-[var(--text-primary)]">Résultat</h3>
+            </div>
+
+            {result ? (
+              <div className="space-y-4">
+                {/* Name */}
+                <div>
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Nom</span>
+                  <div className="text-lg font-semibold text-[var(--text-primary)] mt-1 font-mono">
+                    {result.name}
                   </div>
-                  <div>
-                    <span className="text-xs font-semibold text-[#5b6b7a] uppercase tracking-wider">Docstring :</span>
-                    <p className="text-sm text-[#5b6b7a] mt-1 italic">{result.docstring}</p>
+                </div>
+
+                {/* Docstring */}
+                <div>
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Description</span>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1 italic border-l-2 border-[var(--gold)] pl-3">
+                    {result.docstring}
+                  </p>
+                </div>
+
+                {/* Code */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Code généré</span>
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors"
+                    >
+                      {copied ? (
+                        <><Check className="w-3 h-3 text-[var(--success)]" /> Copié</>
+                      ) : (
+                        <><Copy className="w-3 h-3" /> Copier</>
+                      )}
+                    </button>
                   </div>
-                  <div>
-                    <span className="text-xs font-semibold text-[#5b6b7a] uppercase tracking-wider">Code :</span>
-                    <pre className="bg-[#0b1f33] text-gray-100 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre mt-1">
-                      {result.code}
-                    </pre>
+                  <div className="code-block">
+                    <div className="code-block-header">
+                      <span>{language.toLowerCase()}</span>
+                    </div>
+                    <div className="code-block-content">
+                      <pre><code>{result.code}</code></pre>
+                    </div>
                   </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-2">
                   <button
                     onClick={handleIndex}
                     disabled={indexing || indexed}
-                    className="mck-btn-primary w-full"
+                    className="bd-btn-primary flex-1 justify-center"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>{indexing ? 'Indexation...' : indexed ? '✅ Indexé' : '📥 Indexer'}</span>
+                    <span>
+                      {indexing ? 'Indexation...' : indexed ? '✅ Indexé dans FAISS' : '📥 Indexer dans FAISS'}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => setResult(null)}
+                    className="bd-btn-secondary"
+                  >
+                    Nouveau
                   </button>
                 </div>
-              ) : (
-                <p className="text-sm text-[#5b6b7a] italic">Résultat ici.</p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="bd-empty !py-16">
+                <div className="bd-empty-icon">
+                  <Sparkles className="w-7 h-7 text-[var(--gold)]" />
+                </div>
+                <h3>En attente de génération</h3>
+                <p>Décrivez la fonction souhaitée dans le panneau de gauche, puis cliquez sur Générer.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
+    </div>
     </PageLayout>
   );
 }

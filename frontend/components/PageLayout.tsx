@@ -1,27 +1,37 @@
 import React from 'react';
+import Sidebar from './Sidebar';
 import Header from './Header';
+import BottomNav from './BottomNav';
 
-export default function PageLayout({ children, title, subtitle }: { children: React.ReactNode; title?: string; subtitle?: string }) {
+export default function PageLayout({
+  children,
+  title,
+  subtitle,
+  hideHeader,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+  hideHeader?: boolean;
+}) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        {(title || subtitle) && (
-          <section className="mck-section border-b border-[#e3e8ee] bg-white">
-            <div className="mck-container">
-              {title && <h1 className="mck-heading">{title}</h1>}
-              {subtitle && <p className="mck-subheading mt-2">{subtitle}</p>}
-            </div>
-          </section>
+    <div className="app-layout">
+      <Sidebar />
+      <div className="app-main">
+        {!hideHeader && (
+          <Header title={title} subtitle={subtitle} />
         )}
-        <div className="mck-container">{children}</div>
-      </main>
-      <footer className="border-t border-[#e3e8ee] bg-white">
-        <div className="mck-container flex flex-col md:flex-row items-center justify-between py-6 gap-4">
-          <div className="text-sm text-[#5b6b7a]">CodeMind — NexaTech Solutions · Abidjan, Côte d&apos;Ivoire</div>
-          <div className="text-xs text-[#5b6b7a]">Plateforme sémantique de recherche de code</div>
-        </div>
-      </footer>
+        <main className="app-main-content">
+          {title && hideHeader && (
+            <div className="bd-page-header">
+              <h1>{title}</h1>
+              {subtitle && <p>{subtitle}</p>}
+            </div>
+          )}
+          {children}
+        </main>
+      </div>
+      <BottomNav />
     </div>
   );
 }

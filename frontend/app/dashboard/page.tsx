@@ -1,256 +1,344 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import PageLayout from '../../components/PageLayout';
-import HeroCarousel from '../../components/HeroCarousel';
-import axios from 'axios';
-import { Brain, Loader2, Download, FileJson } from 'lucide-react';
-
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import {
+  FileCode2, Languages, FolderTree, Search,
+  TrendingUp, ArrowRight, Bot, Sparkles,
+  ShieldCheck, Clock, Activity, Github,
+  ChevronRight, Code2, Users, BookOpen,
+  Lightbulb, Shield, Zap, BookText, FileJson, AlertTriangle,
+} from 'lucide-react';
+import {
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
+  Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area,
+} from 'recharts';
+import StatCard from '@/components/StatCard';
+import { useI18n } from '@/lib/I18nContext';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export default function DashboardPage() {
-  const [mounted, setMounted] = useState(false);
-  const [embeddingExplanation, setEmbeddingExplanation] = useState('');
-  const [loadingEmbeddingExplanation, setLoadingEmbeddingExplanation] = useState(false);
-  const [analysisTimestamp, setAnalysisTimestamp] = useState<string | null>(null);
+const CHART_COLORS = ['#2b3674', '#c5a55a', '#05cd99', '#ffb547', '#ee5d50', '#3965ff', '#8b5cf6', '#ec4899'];
+
+const QUICK_ACTIONS = [
+  { title: 'Recherche Sémantique', desc: 'Trouvez du code par langage naturel', path: '/search', icon: Search, color: '#3965ff', gradient: 'from-[#3965ff] to-[#2a4fd6]' },
+  { title: 'CoPilot Assistant', desc: 'Chat RAG connecté à FAISS', path: '/copilot', icon: Bot, color: '#c5a55a', gradient: 'from-[#c5a55a] to-[#a88a42]' },
+  { title: 'Générateur IA', desc: 'Code sur mesure en un clic', path: '/generate', icon: Sparkles, color: '#05cd99', gradient: 'from-[#05cd99] to-[#02b984]' },
+  { title: 'Tech Lead', desc: 'Revue & architecture', path: '/techlead', icon: ShieldCheck, color: '#ffb547', gradient: 'from-[#ffb547] to-[#f59e0b]' },
+];
+
+const IA_SERVICES = [
+  { title: 'Explain', desc: 'Explication de code', path: '/explain', icon: Lightbulb, color: '#8b5cf6', gradient: 'from-[#8b5cf6] to-[#7c3aed]' },
+  { title: 'Translate', desc: 'Traduction de code', path: '/translate', icon: Languages, color: '#ec4899', gradient: 'from-[#ec4899] to-[#db2777]' },
+  { title: 'Audit', desc: 'Sécurité & conformité', path: '/audit', icon: Shield, color: '#ee5d50', gradient: 'from-[#ee5d50] to-[#dc3a30]' },
+  { title: 'Optimize', desc: 'Optimisation IA', path: '/optimize', icon: Zap, color: '#f59e0b', gradient: 'from-[#f59e0b] to-[#d97706]' },
+  { title: 'Docstring', desc: 'Génération docstring', path: '/docstring', icon: BookText, color: '#06b6d4', gradient: 'from-[#06b6d4] to-[#0891b2]' },
+  { title: 'Patch', desc: 'Correction sécurité', path: '/patch', icon: AlertTriangle, color: '#ef4444', gradient: 'from-[#ef4444] to-[#dc2626]' },
+  { title: 'OpenAPI', desc: 'Spec API REST', path: '/openapi', icon: FileJson, color: '#10b981', gradient: 'from-[#10b981] to-[#059669]' },
+];
+
+export default function Dashboard() {
+  const { t } = useI18n();
+  const [snippets, setSnippets] = useState<any[]>([]);
+  const [searches, setSearches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) setUser(JSON.parse(storedUser));
+    } catch { /* ignore */ }
   }, []);
 
-  const interpretEmbeddings = async () => {
-    setLoadingEmbeddingExplanation(true);
-    setEmbeddingExplanation('');
-    setAnalysisTimestamp(null);
-    try {
-      const res = await axios.post(`${BASE_URL}/explain`, {
-        name: 'dashboard_semantic_map',
-        language: 'french',
-        code: 'Cartographie Sémantique Interactive 2D - Dashboard CodeMind',
-        docstring: 'Analyse des projections des embeddings sémantiques : clusters detectés, séparation entre les groupes Fintech & Validation, Localisation & Franc CFA, Sécurité & HMAC, qualité de la vectorisation et axes sémantiques X/Y'
-      });
-      setEmbeddingExplanation(res.data.explanation);
-      setAnalysisTimestamp(new Date().toLocaleString('fr-FR'));
-    } catch {
-      setEmbeddingExplanation('');
-    } finally {
-      setLoadingEmbeddingExplanation(false);
-    }
-  };
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [corpusRes, historyRes] = await Promise.all([
+          fetch(`${BASE_URL}/corpus`).then(r => r.json()).catch(() => ({ entries: [] })),
+          fetch(`${BASE_URL}/search_history?limit=100`).then(r => r.json()).catch(() => []),
+        ]);
+        setSnippets(corpusRes.entries || []);
+        setSearches(historyRes || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
-  const downloadAnalysis = (format: 'json' | 'txt') => {
-    if (!embeddingExplanation || !analysisTimestamp) return;
-    
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    let content: string;
-    let mimeType: string;
-    let extension: string;
+  const languages = [...new Set(snippets.map((s: any) => s.language))];
+  const langData = languages.map((lang) => ({
+    name: lang,
+    value: snippets.filter((s: any) => s.language === lang).length,
+  }));
+  const totalLines = snippets.reduce((sum: number, s: any) => sum + (s.line_count || 0), 0);
 
-    if (format === 'json') {
-      const data = {
-        timestamp: analysisTimestamp,
-        type: 'Analyse Embeddings Sémantiques',
-        projection: 'Cartographie Sémantique Interactive 2D',
-        clusters: [
-          { name: 'Fintech & Validation', color: '#0b1f33', functions: ['validate_ci_phone_number', 'validateCIPhone', 'check_phone_number_valid', 'validateCIPhoneLength'] },
-          { name: 'Localisation & Franc CFA', color: '#c5a55a', functions: ['format_currency_xof', 'formatXOF', 'roundXOFValue'] },
-          { name: 'Sécurité & HMAC', color: '#5b6b7a', functions: ['generate_hmac_signature', 'verifyHMAC', 'sha256Hash'] }
-        ],
-        analysis: embeddingExplanation,
-        metadata: {
-          total_functions: 10,
-          languages: ['Python', 'JavaScript'],
-          generated_by: 'CodeMind AI'
-        }
-      };
-      content = JSON.stringify(data, null, 2);
-      mimeType = 'application/json';
-      extension = 'json';
-    } else {
-      content = `ANALYSE DES PROJECTIONS DES EMBEDDINGS SÉMANTIQUES
-CodeMind - Dashboard
-Généré le : ${analysisTimestamp}
+  const trendData = searches.length > 0
+    ? Array.from({ length: 7 }, (_, i) => {
+        const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        const dayIdx = (new Date().getDay() + i - 1 + 7) % 7 || 7;
+        const dayName = dayNames[dayIdx - 1];
+        const daySearches = searches.filter((s: any) => {
+          if (!s.created_date) return false;
+          const d = new Date(s.created_date);
+          return d.getDay() === dayIdx;
+        });
+        return {
+          day: dayName,
+          searches: daySearches.length,
+          success: daySearches.filter((s: any) => (s.results_count || 0) > 0).length,
+        };
+      })
+    : Array.from({ length: 7 }, (_, i) => ({
+        day: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'][i],
+        searches: 0,
+        success: 0,
+      }));
 
-${embeddingExplanation}
-
----
-Clusters détectés :
-1. Fintech & Validation (${['validate_ci_phone_number', 'validateCIPhone', 'check_phone_number_valid', 'validateCIPhoneLength'].length} fonctions)
-2. Localisation & Franc CFA (${['format_currency_xof', 'formatXOF', 'roundXOFValue'].length} fonctions)
-3. Sécurité & HMAC (${['generate_hmac_signature', 'verifyHMAC', 'sha256Hash'].length} fonctions)
-
----
-Généré par CodeMind - NexaTech Solutions`;
-      mimeType = 'text/plain';
-      extension = 'txt';
-    }
-
-    const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `codemind-embeddings-analysis-${timestamp}.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const kpis = [
-    { label: 'Fonctions Indexées', value: '100', change: 'Corpus Actuel' },
-    { label: 'Langages', value: '2', change: 'Python / JavaScript' },
-    { label: 'Latence Moyenne', value: '4.23 ms', change: 'Temps Réel CPU' },
-    { label: 'Gain Productivité', value: '~60%', change: 'Objectif NexaTech' }
-  ];
-
-  const mapData = [
-    {
-      x: [2.1, 1.9, 1.8, 2.3],
-      y: [4.9, 5.1, 4.8, 5.2],
-      mode: 'markers',
-      type: 'scatter',
-      name: 'Fintech & Validation',
-      text: ['validate_ci_phone_number', 'validateCIPhone', 'check_phone_number_valid', 'validateCIPhoneLength'],
-      marker: { size: 12, color: '#0b1f33' }
-    },
-    {
-      x: [4.2, 3.9, 4.1],
-      y: [2.1, 1.9, 2.0],
-      mode: 'markers',
-      type: 'scatter',
-      name: 'Localisation & Franc CFA',
-      text: ['format_currency_xof', 'formatXOF', 'roundXOFValue'],
-      marker: { size: 12, color: '#c5a55a' }
-    },
-    {
-      x: [8.1, 7.9, 8.3],
-      y: [7.9, 8.1, 8.2],
-      mode: 'markers',
-      type: 'scatter',
-      name: 'Sécurité & HMAC',
-      text: ['generate_hmac_signature', 'verifyHMAC', 'sha256Hash'],
-      marker: { size: 12, color: '#5b6b7a' }
-    }
+  const KPI_DATA = [
+    { label: 'Snippets indexés', value: snippets.length, sublabel: `${totalLines} lignes de code`, icon: FileCode2, color: '#2b3674', trend: 'up' as const, trendValue: '+12%' },
+    { label: 'Langages', value: languages.length, sublabel: 'programmes différents', icon: Languages, color: '#3965ff', trend: 'up' as const, trendValue: '+3' },
+    { label: 'Catégories', value: Math.min(snippets.length, 8), sublabel: 'modules métier', icon: FolderTree, color: '#05cd99' },
+    { label: 'Recherches', value: searches.length, sublabel: 'requêtes effectuées', icon: Search, color: '#ffb547', trend: 'up' as const, trendValue: '+28%' },
   ];
 
   return (
-    <PageLayout title="Dashboard" subtitle="Statistiques en temps réel et exploration vectorielle 2D">
-      <HeroCarousel />
+    <div className="min-h-screen bg-[var(--bg-main)]">
+      <div className="bd-container py-6 lg:py-8 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="bd-badge bd-badge-gold">v3.0</div>
+              <span className="text-xs text-[var(--text-muted)]">Tableau de bord</span>
+            </div>
+            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+              Bon retour{user ? `, ${user.name.split(' ')[0]}` : ''} 👋
+            </h1>
+            <p className="text-[var(--text-secondary)] mt-1 text-sm">
+              {user?.role === 'Tech Lead'
+                ? 'Supervisez la qualité et la performance du code de votre équipe.'
+                : user?.role === 'Python Dev'
+                ? 'Explorez et contribuez à la base de code sémantique.'
+                : 'Apprenez et maîtrisez les outils CodeMind.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3 mt-4 md:mt-0">
+            <Link href="/search" className="bd-btn-primary">
+              <Search className="w-4 h-4" /> Rechercher
+            </Link>
+            <Link href="/copilot" className="bd-btn-secondary">
+              <Bot className="w-4 h-4" /> CoPilot
+            </Link>
+          </div>
+        </div>
 
-      <div className="mck-section bg-white border-b border-[#e3e8ee]">
-        <div className="mck-container">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {kpis.map((kpi, i) => (
-              <div key={i} className="mck-card p-6 text-center">
-                <div className="text-xs font-semibold text-[#5b6b7a] uppercase tracking-wider mb-2">{kpi.label}</div>
-                <div className="text-3xl font-semibold text-[#0b1f33] mb-1">{kpi.value}</div>
-                <div className="text-xs text-[#c5a55a] font-medium">{kpi.change}</div>
-              </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 rounded-[var(--radius-lg)] bd-skeleton" />
             ))}
           </div>
-        </div>
-      </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+              {KPI_DATA.map((m, i) => (
+                <StatCard key={i} icon={m.icon} label={m.label} value={m.value} sublabel={m.sublabel} color={m.color} delay={i} trend={m.trend} trendValue={m.trendValue} />
+              ))}
+            </div>
 
-      <div className="mck-section">
-        <div className="mck-container">
-          <div className="mck-card p-6 mb-8">
-            <h2 className="text-lg font-semibold text-[#0b1f33] mb-2">Cartographie Sémantique Interactive 2D</h2>
-            <p className="text-sm text-[#5b6b7a] mb-6">Chaque point représente une fonction réelle indexée. Les fonctions sémantiquement proches se regroupent en clusters.</p>
-            {mounted && (
-              <Plot
-                data={mapData as any}
-                layout={{
-                  title: 'Projections des Embeddings Sémantiques',
-                  xaxis: { title: 'Axe Sémantique X', showgrid: true },
-                  yaxis: { title: 'Axe Sémantique Y', showgrid: true },
-                  hovermode: 'closest',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  autosize: true
-                }}
-                style={{ width: '100%', height: '400px' }}
-              />
-            )}
-
-            <div className="mt-6 space-y-4">
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={interpretEmbeddings}
-                  disabled={loadingEmbeddingExplanation}
-                  className="mck-btn-primary"
+            {/* Quick Actions */}
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Accès Rapide</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {QUICK_ACTIONS.map((action, i) => (
+                <Link
+                  key={action.path}
+                  href={action.path}
+                  className="group bd-card p-5 hover:-translate-y-0.5 transition-all duration-200"
+                  style={{ animationDelay: `${i * 0.1}s` }}
                 >
-                  {loadingEmbeddingExplanation ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Brain className="w-4 h-4" />
-                  )}
-                  <span>{loadingEmbeddingExplanation ? 'Analyse IA en cours...' : 'Interpréter la projection'}</span>
-                </button>
-
-                {!loadingEmbeddingExplanation && embeddingExplanation && (
-                  <div className="rounded-xl border border-[#e3e8ee] bg-[#f6f8fb] p-4 text-sm text-[#142938] whitespace-pre-wrap">
-                    {embeddingExplanation}
+                  <div className={`w-11 h-11 rounded-[var(--radius-md)] bg-gradient-to-br ${action.gradient} flex items-center justify-center text-white mb-4 shadow-lg`}>
+                    <action.icon className="w-5 h-5" />
                   </div>
-                )}
+                  <h3 className="font-semibold text-sm text-[var(--text-primary)]">{action.title}</h3>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1 mb-3">{action.desc}</p>
+                  <div className="flex items-center gap-1 text-xs font-medium text-[var(--gold)] group-hover:gap-2 transition-all">
+                    Accéder <ChevronRight className="w-3 h-3" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* IA Services */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Services IA</h2>
+                <span className="text-xs text-[var(--text-muted)]">7 outils disponibles</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                {IA_SERVICES.map((service) => (
+                  <Link
+                    key={service.path}
+                    href={service.path}
+                    className="group bd-card p-4 flex flex-col items-center text-center hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <div className={`w-10 h-10 rounded-[var(--radius-md)] bg-gradient-to-br ${service.gradient} flex items-center justify-center text-white mb-3 shadow-md`}>
+                      <service.icon className="w-5 h-5" />
+                    </div>
+                    <h4 className="font-semibold text-xs text-[var(--text-primary)]">{service.title}</h4>
+                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">{service.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div className="bd-card p-6">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-semibold text-[var(--text-primary)]">Répartition par langage</h3>
+                  <Code2 className="w-4 h-4 text-[var(--text-muted)]" />
+                </div>
+                <p className="text-xs text-[var(--text-secondary)] mb-4">Distribution des snippets</p>
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie data={langData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} innerRadius={55} paddingAngle={4}>
+                      {langData.map((_, i) => (
+                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} stroke="transparent" />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        background: 'var(--bg-card)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '13px',
+                        color: 'var(--text-primary)',
+                        boxShadow: 'var(--shadow-dropdown)',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-wrap gap-2 mt-2 justify-center">
+                  {langData.slice(0, 6).map((entry, i) => (
+                    <div key={entry.name} className="flex items-center gap-1.5 text-xs">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
+                      <span className="text-[var(--text-secondary)] capitalize">{entry.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {embeddingExplanation && !loadingEmbeddingExplanation && (
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-semibold text-[#5b6b7a] uppercase tracking-wider">
-                    Télécharger l'analyse
-                    {analysisTimestamp && (
-                      <span className="ml-2 normal-case tracking-normal text-[#5b6b7a]/70">
-                        · Générée le {analysisTimestamp}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => downloadAnalysis('json')}
-                      className="mck-btn-secondary"
-                    >
-                      <FileJson className="w-4 h-4" />
-                      <span>Exporter JSON</span>
-                    </button>
-                    <button
-                      onClick={() => downloadAnalysis('txt')}
-                      className="mck-btn-secondary"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Exporter TXT</span>
-                    </button>
-                  </div>
+              <div className="bd-card p-6">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-semibold text-[var(--text-primary)]">Activité de recherche</h3>
+                  <Activity className="w-4 h-4 text-[var(--text-muted)]" />
                 </div>
-              )}
+                <p className="text-xs text-[var(--text-secondary)] mb-4">Tendance sur 7 jours</p>
+                <ResponsiveContainer width="100%" height={280}>
+                  <AreaChart data={trendData}>
+                    <defs>
+                      <linearGradient id="dSearches" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2b3674" stopOpacity={0.12} />
+                        <stop offset="95%" stopColor="#2b3674" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="dSuccess" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#05cd99" stopOpacity={0.12} />
+                        <stop offset="95%" stopColor="#05cd99" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                    <XAxis dataKey="day" stroke="var(--text-muted)" fontSize={12} />
+                    <YAxis stroke="var(--text-muted)" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'var(--bg-card)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '13px',
+                        color: 'var(--text-primary)',
+                        boxShadow: 'var(--shadow-dropdown)',
+                      }}
+                    />
+                    <Area type="monotone" dataKey="searches" stroke="#2b3674" strokeWidth={2.5} fillOpacity={1} fill="url(#dSearches)" name="Recherches" dot={false} />
+                    <Area type="monotone" dataKey="success" stroke="#05cd99" strokeWidth={2.5} fillOpacity={1} fill="url(#dSuccess)" name="Réussies" dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="mck-card p-6 flex flex-col items-center">
-              <h3 className="text-md font-semibold text-[#0b1f33] mb-4">Répartition du Corpus par Langage</h3>
-              {mounted && (
-                <Plot
-                  data={[
-                    { values: [50, 50], labels: ['Python', 'JavaScript'], type: 'pie', marker: { colors: ['#0b1f33', '#c5a55a'] } }
-                  ]}
-                  layout={{ width: 400, height: 300, paper_bgcolor: 'rgba(0,0,0,0)', margin: { l: 10, r: 10, b: 10, t: 10 } }}
-                />
-              )}
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bd-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <FileCode2 className="w-4 h-4 text-[var(--gold)]" />
+                    <h3 className="font-semibold text-[var(--text-primary)]">Snippets récents</h3>
+                  </div>
+                  <Link href="/search" className="text-xs font-medium text-[var(--gold)] hover:underline flex items-center gap-1">
+                    Tout voir <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+                <div className="space-y-2">
+                  {snippets.slice(0, 5).map((snippet: any) => (
+                    <div key={snippet.id} className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer">
+                      <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+                        <FileCode2 className="w-4 h-4 text-[var(--primary)]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate text-[var(--text-primary)]">{snippet.name || snippet.title}</p>
+                        <p className="text-xs text-[var(--text-secondary)] truncate">{snippet.docstring?.substring(0, 60) || snippet.file_path || ''}</p>
+                      </div>
+                      <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md bg-[var(--surface-alt)] text-[var(--text-muted)]">{snippet.language}</span>
+                    </div>
+                  ))}
+                  {snippets.length === 0 && (
+                    <div className="bd-empty !py-8">
+                      <FileCode2 className="w-8 h-8 text-[var(--text-muted)]/40 mb-2" />
+                      <p className="text-sm text-[var(--text-secondary)]">Aucun snippet indexé pour le moment.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-            <div className="mck-card p-6 flex flex-col justify-center">
-              <h3 className="text-md font-semibold text-[#0b1f33] mb-4">Contexte Métier NexaTech</h3>
-              <p className="text-sm text-[#5b6b7a] leading-relaxed">
-                La solution sémantique unifie nos briques logicielles au sein de nos architectures bancaires et fintechs de la zone UEMOA.
-                Grâce à l'indexation dynamique, notre base de code s'enrichit automatiquement des nouvelles fonctions qualifiées conçues par l'équipe.
-              </p>
+              <div className="bd-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Search className="w-4 h-4 text-[var(--gold)]" />
+                    <h3 className="font-semibold text-[var(--text-primary)]">Recherches récentes</h3>
+                  </div>
+                  <Link href="/analytics" className="text-xs font-medium text-[var(--gold)] hover:underline flex items-center gap-1">
+                    Métriques <TrendingUp className="w-3 h-3" />
+                  </Link>
+                </div>
+                <div className="space-y-2">
+                  {searches.length === 0 ? (
+                    <div className="bd-empty !py-8">
+                      <Search className="w-8 h-8 text-[var(--text-muted)]/40 mb-2" />
+                      <p className="text-sm text-[var(--text-secondary)]">Aucune recherche pour le moment.</p>
+                    </div>
+                  ) : (
+                    searches.slice(0, 5).map((search: any) => (
+                      <div key={search.id || search.created_date} className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer">
+                        <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--gold)]/10 flex items-center justify-center shrink-0">
+                          <Search className="w-4 h-4 text-[var(--gold)]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate text-[var(--text-primary)]">&ldquo;{search.query || '—'}&rdquo;</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{search.results_count ?? 0} résultats</p>
+                        </div>
+                        <span className="text-xs text-[var(--text-muted)] shrink-0">
+                          {search.results_count ?? 0} résultats
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-    </PageLayout>
+    </div>
   );
 }

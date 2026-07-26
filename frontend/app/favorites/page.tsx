@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import PageLayout from '../../components/PageLayout';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Star, Code2, FileCode, Copy, Check, Search } from 'lucide-react';
+import PageLayout from '@/components/PageLayout';
 
 interface Favorite {
   name: string;
@@ -14,6 +14,7 @@ interface Favorite {
 
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('favorites');
@@ -28,36 +29,109 @@ export default function FavoritesPage() {
     localStorage.setItem('favorites', JSON.stringify(updated));
   };
 
+  const handleCopy = (code: string, idx: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
   return (
-    <PageLayout title="Favoris" subtitle="Retrouvez rapidement vos fonctions sauvegardées.">
-      <div className="mck-section">
-        <div className="mck-container">
-          {favorites.length === 0 ? (
-            <div className="mck-card p-8 text-center text-[#5b6b7a]">Aucun favori pour le moment.</div>
-          ) : (
-            <div className="space-y-4">
-              {favorites.map((fav, idx) => (
-                <div key={idx} className="mck-card p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <span className="text-lg font-semibold text-[#0b1f33]">{fav.name}</span>
-                      <span className="ml-2 text-xs font-semibold text-[#c5a55a] bg-[#f6f8fb] px-2 py-1 rounded-full">{fav.language.toUpperCase()}</span>
+    <PageLayout title="Favoris" subtitle="Mes Favoris">
+    <div className="min-h-screen bg-[var(--bg-main)]">
+      <div className="bd-container py-6 lg:py-8 max-w-5xl mx-auto">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="bd-badge bd-badge-gold">Favoris</div>
+          </div>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Mes Favoris</h1>
+          <p className="text-[var(--text-secondary)] mt-1 text-sm">
+            Retrouvez rapidement vos fonctions sauvegardées.
+          </p>
+        </div>
+
+        {favorites.length === 0 ? (
+          <div className="bd-card p-12">
+            <div className="bd-empty">
+              <div className="bd-empty-icon">
+                <Star className="w-7 h-7 text-[var(--gold)]" />
+              </div>
+              <h3>Aucun favori</h3>
+              <p>Vous n&apos;avez pas encore ajouté de fonction à vos favoris.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-2">
+              <Star className="w-4 h-4 text-[var(--gold)]" />
+              <span>{favorites.length} fonction{favorites.length > 1 ? 's' : ''} sauvegardée{favorites.length > 1 ? 's' : ''}</span>
+            </div>
+
+            {favorites.map((fav, idx) => (
+              <div key={idx} className="bd-card overflow-hidden">
+                {/* Header */}
+                <div className="p-5 pb-4 border-b border-[var(--border)]">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--gold)]/10 flex items-center justify-center shrink-0">
+                        <Code2 className="w-5 h-5 text-[var(--gold)]" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-[var(--text-primary)] font-mono">{fav.name}</h3>
+                        <p className="text-sm text-[var(--text-secondary)] italic mt-1 line-clamp-2">
+                          &ldquo;{fav.docstring}&rdquo;
+                        </p>
+                      </div>
                     </div>
-                    <button onClick={() => removeFavorite(fav.name)} className="text-red-600 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
+                    <div className="flex items-center gap-2">
+                      <span className="bd-badge bd-badge-primary text-[10px] font-mono">
+                        {fav.language.toUpperCase()}
+                      </span>
+                      <button
+                        onClick={() => removeFavorite(fav.name)}
+                        className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/5 transition-colors"
+                        title="Retirer des favoris"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code */}
+                <div className="p-5 pt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Code</span>
+                    <button
+                      onClick={() => handleCopy(fav.code, idx)}
+                      className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors"
+                    >
+                      {copiedIndex === idx ? (
+                        <><Check className="w-3 h-3 text-[var(--success)]" /> Copié</>
+                      ) : (
+                        <><Copy className="w-3 h-3" /> Copier</>
+                      )}
                     </button>
                   </div>
-                  <p className="text-sm text-[#5b6b7a] italic mb-3">&quot;{fav.docstring}&quot;</p>
-                  <pre className="bg-[#0b1f33] text-gray-100 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre">
-                    {fav.code}
-                  </pre>
-                  <div className="mt-3 text-xs text-[#5b6b7a] font-medium">Score FAISS : {fav.score.toFixed(4)}</div>
+                  <div className="code-block">
+                    <div className="code-block-header">
+                      <span>{fav.language.toLowerCase()}</span>
+                    </div>
+                    <div className="code-block-content">
+                      <pre><code>{fav.code}</code></pre>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                    <span>Score FAISS :</span>
+                    <span className="font-mono font-semibold text-[var(--gold)]">{fav.score.toFixed(4)}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+    </div>
     </PageLayout>
   );
 }
