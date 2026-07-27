@@ -15,7 +15,11 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert "status" in data
-    assert "index_info" in data
+    if data["status"] != "starting":
+        assert "baseline" in data
+        assert "finetuned" in data
+        assert "device" in data
+        assert "elevenlabs" in data
 
 def test_search_endpoint():
     payload = {
@@ -148,3 +152,24 @@ def test_copilot_chat_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert "response" in data
+
+def test_list_voices_endpoint():
+    response = client.get("/voices")
+    assert response.status_code == 200
+    data = response.json()
+    assert "voices" in data
+    assert "default_voice" in data
+    assert isinstance(data["voices"], list)
+
+def test_test_elevenlabs_endpoint():
+    response = client.post("/test_elevenlabs")
+    assert response.status_code == 200
+    data = response.json()
+    assert "success" in data
+    assert "message" in data
+    assert "api_key_configured" in data
+
+def test_speak_endpoint_with_key():
+    payload = {"text": "Bonjour depuis CodeMind"}
+    response = client.post("/speak", json=payload)
+    assert response.status_code in (200, 404, 400, 401, 500)

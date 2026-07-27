@@ -99,10 +99,10 @@ export default function Dashboard() {
       }));
 
   const KPI_DATA = [
-    { label: 'Snippets indexés', value: snippets.length, sublabel: `${totalLines} lignes de code`, icon: FileCode2, color: '#2b3674', trend: 'up' as const, trendValue: '+12%' },
-    { label: 'Langages', value: languages.length, sublabel: 'programmes différents', icon: Languages, color: '#3965ff', trend: 'up' as const, trendValue: '+3' },
-    { label: 'Catégories', value: Math.min(snippets.length, 8), sublabel: 'modules métier', icon: FolderTree, color: '#05cd99' },
-    { label: 'Recherches', value: searches.length, sublabel: 'requêtes effectuées', icon: Search, color: '#ffb547', trend: 'up' as const, trendValue: '+28%' },
+    { label: 'Snippets indexés', value: snippets.length, sublabel: `${totalLines} lignes de code`, icon: FileCode2, color: '#2b3674', trend: 'up' as const, trendValue: '+12%', tooltip: 'Nombre total de fonctions indexées dans FAISS' },
+    { label: 'Langages', value: languages.length, sublabel: 'programmes différents', icon: Languages, color: '#3965ff', trend: 'up' as const, trendValue: '+3', tooltip: 'Langages de programmation détectés dans le corpus' },
+    { label: 'Catégories', value: Math.min(snippets.length, 8), sublabel: 'modules métier', icon: FolderTree, color: '#05cd99', tooltip: 'Modules métier identifiés' },
+    { label: 'Recherches', value: searches.length, sublabel: 'requêtes effectuées', icon: Search, color: '#ffb547', trend: 'up' as const, trendValue: '+28%', tooltip: 'Nombre total de recherches effectuées' },
   ];
 
   return (
@@ -145,7 +145,7 @@ export default function Dashboard() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
               {KPI_DATA.map((m, i) => (
-                <StatCard key={i} icon={m.icon} label={m.label} value={m.value} sublabel={m.sublabel} color={m.color} delay={i} trend={m.trend} trendValue={m.trendValue} />
+                <StatCard key={i} icon={m.icon} label={m.label} value={m.value} sublabel={m.sublabel} color={m.color} delay={i} trend={m.trend} trendValue={m.trendValue} tooltip={m.tooltip} />
               ))}
             </div>
 

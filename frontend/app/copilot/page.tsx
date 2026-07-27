@@ -188,10 +188,27 @@ Bonjour ! Je suis votre assistant intelligent connecté à l'index FAISS du dép
     setLoadingStage('searching');
 
     try {
+      let retrievalContext: any[] = [];
+      try {
+        const searchRes = await fetch(`${BASE_URL}/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: text, language: '', top_k: 5, use_rerank: true }),
+        });
+        if (searchRes.ok) {
+          const searchData = await searchRes.json();
+          retrievalContext = searchData.results || [];
+        }
+      } catch (e) {
+        console.error('FAISS search failed:', e);
+      }
+
+      setLoadingStage('generating');
       const history = messages.map(m => ({ role: m.role, content: m.content }));
       const res = await axios.post(`${BASE_URL}/copilot_chat`, {
         message: text,
-        history: history
+        history: history,
+        retrieval_context: retrievalContext,
       });
       const assistantMessage: ChatMessage = { role: 'assistant', content: res.data.response };
       setMessages(prev => [...prev, assistantMessage]);

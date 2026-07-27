@@ -11,6 +11,7 @@ interface StatCardProps {
   delay?: number;
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
+  tooltip?: string;
 }
 
 const TREND_COLORS = {
@@ -28,6 +29,7 @@ export default function StatCard({
   delay = 0,
   trend,
   trendValue,
+  tooltip,
 }: StatCardProps) {
   return (
     <motion.div
@@ -35,6 +37,7 @@ export default function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delay * 0.08, duration: 0.5, ease: 'easeOut' }}
       className="bd-metric-card"
+      data-tooltip={tooltip}
     >
       <div className="flex items-center justify-between mb-1">
         <div

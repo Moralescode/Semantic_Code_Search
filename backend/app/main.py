@@ -42,7 +42,13 @@ class SearchRequest(BaseModel):
     use_baseline: bool = False
 
 class CodeSearchResult(BaseModel):
-    name: str; language: str; docstring: str; code: str; arguments: List[str]; score: float
+    id: Optional[str] = None
+    name: str
+    language: str
+    docstring: str
+    code: str
+    arguments: List[str]
+    score: float
 
 class SearchResponse(BaseModel):
     query: str; language_filter: Optional[str]; results: List[CodeSearchResult]; latency_ms: float
@@ -148,6 +154,20 @@ def test_elevenlabs(api_key: Optional[str] = Query(None)):
         return {"success": False, "message": f"Erreur de connexion: {str(e)}", "api_key_configured": True}
 
 
+@app.get("/languages")
+def list_languages():
+    """Retourne la liste des langages supports par CodeMind (CodeSearchNet + NexaTech)."""
+    return {
+        "languages": [
+            {"id": "python", "label": "Python", "emoji": "🐍"},
+            {"id": "javascript", "label": "JavaScript", "emoji": "🟨"},
+            {"id": "go", "label": "Go", "emoji": "🔵"},
+            {"id": "java", "label": "Java", "emoji": "☕"},
+            {"id": "php", "label": "PHP", "emoji": "🐘"},
+            {"id": "ruby", "label": "Ruby", "emoji": "💎"},
+        ]
+    }
+
 # ======================================================================
 # EXISTING ENDPOINTS
 # ======================================================================
@@ -195,7 +215,7 @@ def search_code(req: SearchRequest):
         results = search_engine.search(query=req.query, language=req.language, top_k=req.top_k, use_rerank=req.use_rerank, use_baseline=req.use_baseline)
     except Exception as e:
         raise HTTPException(500, str(e))
-    return {'query': req.query, 'results': results, 'latency_ms': round((time.time()-start)*1000, 2)}
+    return {'query': req.query, 'language_filter': req.language, 'results': results, 'latency_ms': round((time.time()-start)*1000, 2)}
 
 @app.post('/save_search')
 def save_search(query: str = '', language: str = '', results_count: int = 0):
@@ -247,7 +267,7 @@ def translate_code(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        result = explainer.translate(req.get('code', ''), req.get('source_language', 'python'), req.get('target_language', 'javascript'))
+        result = explainer.translate_code(req.get('code', ''), req.get('source_language', 'python'), req.get('target_language', 'javascript'))
         return {'translated_code': result}
     except Exception as e:
         raise HTTPException(500, str(e))
@@ -257,7 +277,7 @@ def generate_code(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        result = explainer.generate(req.get('description', ''), req.get('language', 'python'))
+        result = explainer.generate_code(req.get('description', ''), req.get('language', 'python'))
         return result
     except Exception as e:
         raise HTTPException(500, str(e))
@@ -280,7 +300,7 @@ def audit_code(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        return explainer.audit(req.get('code', ''), req.get('language', 'python'))
+        return explainer.audit_code(req.get('code', ''), req.get('language', 'python'))
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -289,7 +309,7 @@ def optimize_code(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        return explainer.optimize(req.get('code', ''), req.get('language', 'python'))
+        return explainer.optimize_code(req.get('code', ''), req.get('language', 'python'))
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -298,7 +318,7 @@ def generate_docstring(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        return {'documented_code': explainer.docstring(req.get('code', ''), req.get('language', 'python'))}
+        return {'documented_code': explainer.generate_docstring(req.get('code', ''), req.get('language', 'python'))}
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -307,7 +327,7 @@ def patch_security(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        return explainer.patch(req.get('code', ''), req.get('language', 'python'))
+        return explainer.patch_security_vuln(req.get('code', ''), req.get('language', 'python'))
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -316,7 +336,7 @@ def openapi_spec(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        return {'openapi_spec': explainer.openapi(req.get('name', ''), req.get('code', ''), req.get('language', 'python'))}
+        return {'openapi_spec': explainer.generate_openapi_spec(req.get('name', ''), req.get('code', ''), req.get('language', 'python'))}
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -325,7 +345,7 @@ def copilot_chat(req: dict):
     global explainer
     if explainer is None: explainer = CodeExplainer()
     try:
-        return {'response': explainer.copilot(req.get('message', ''), req.get('history', []))}
+        return {'response': explainer.copilot_chat(req.get('message', ''), req.get('history', []), req.get('retrieval_context', ''))}
     except Exception as e:
         raise HTTPException(500, str(e))
 

@@ -72,12 +72,12 @@ export default function AnalyticsPage() {
         {/* Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {[
-            { label: 'Recherches', value: totalSearches, sublabel: 'total effectuées', icon: Search, color: '#2b3674', trend: 'up', trendValue: '+12%' },
-            { label: 'Taux de succès', value: Math.round(successSearches / Math.max(1, totalSearches) * 100), sublabel: 'avec résultats', icon: Target, color: '#05cd99', trend: 'up', trendValue: '+8%' },
-            { label: 'NDCG@10', value: 0.89, max: 1, desc: 'Score de pertinence', icon: Gauge, color: '#c5a55a', percent: 89, change: '+34%', display: '0.89' },
-            { label: 'Latence', value: avgLatency, max: 1000, desc: 'Temps moyen (ms)', icon: Clock, color: '#3965ff', percent: Math.min(100, Math.round(avgLatency / 1000 * 100)), display: `${avgLatency}ms`, change: '-12%' },
+            { label: 'Recherches', value: totalSearches, sublabel: 'total effectuées', icon: Search, color: '#2b3674', trend: 'up', trendValue: '+12%', tooltip: 'Nombre total de recherches dans le moteur sémantique' },
+            { label: 'Taux de succès', value: Math.round(successSearches / Math.max(1, totalSearches) * 100), sublabel: 'avec résultats', icon: Target, color: '#05cd99', trend: 'up', trendValue: '+8%', tooltip: 'Pourcentage de recherches ayant retourné des résultats' },
+            { label: 'NDCG@10', value: 0.89, max: 1, desc: 'Score de pertinence', icon: Gauge, color: '#c5a55a', percent: 89, change: '+34%', display: '0.89', tooltip: 'Score de pertinence des résultats (0 à 1)' },
+            { label: 'Latence', value: avgLatency, max: 1000, desc: 'Temps moyen (ms)', icon: Clock, color: '#3965ff', percent: Math.min(100, Math.round(avgLatency / 1000 * 100)), display: `${avgLatency}ms`, change: '-12%', tooltip: 'Temps moyen de réponse du moteur' },
           ].map((m, i) => (
-            <div key={m.label} className="bd-metric-card" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(15px)', transition: `all 0.5s ease ${i * 0.08}s` }}>
+            <div key={m.label} className="bd-metric-card" data-tooltip={m.tooltip} style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(15px)', transition: `all 0.5s ease ${i * 0.08}s` }}>
               <div className="flex items-center justify-between mb-1">
                 <div className="metric-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}dd)` }}>
                   <m.icon className="w-5 h-5" />

@@ -72,7 +72,7 @@ export default function SearchPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: searchQuery,
-          language: '',
+          language: filters.language || undefined,
           top_k: 20,
           use_rerank: true,
         }),
@@ -87,7 +87,7 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, saveSearch]);
+  }, [query, filters.language, saveSearch]);
 
   const toggleVoice = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -121,7 +121,7 @@ export default function SearchPage() {
   };
 
   const handleShareWhatsApp = (result: any) => {
-    const search_text = ['\u{1F50D} *CodeMind*', '', '\u{1F4CC} Fonction: ' + (result.name || result.title), '\u{1F4BB} Langage: ' + result.language, '\u{1F4DD} Description: ' + (result.docstring || result.description || ''), '', '```' + (result.language || ''), result.code || '', '```', '', 'CodeMind - Recherche Semantique'].join('\n');
+    const search_text = ['🔍 *CodeMind*', '', '📌 Fonction: ' + (result.name || result.title), '💻 Langage: ' + result.language, '📝 Description: ' + (result.docstring || result.description || ''), '', '```' + (result.language || ''), result.code || '', '```', '', 'CodeMind - Recherche Semantique'].join('\n');
     const url = 'https://wa.me/?text=' + encodeURIComponent(search_text);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -141,12 +141,10 @@ export default function SearchPage() {
     setTimeout(() => setSavedFavId(null), 2000);
   };
 
-  const languages = [...new Set(snippets.map((s: any) => s.language))];
-  const categories = [...new Set(snippets.map((s: any) => s.category))];
+  const languages = [...new Set(snippets.map((s: any) => s.language))].filter(Boolean);
 
   const filteredResults = (results || []).filter((r: any) => {
     if (filters.language && r.language !== filters.language) return false;
-    if (filters.category && r.category !== filters.category) return false;
     return true;
   });
 
@@ -178,7 +176,7 @@ export default function SearchPage() {
             <button onClick={toggleVoice} className={cn('w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center transition-colors', listening ? 'bg-[var(--danger)]/10 text-[var(--danger)] animate-pulse-soft' : 'hover:bg-[var(--surface-hover)] text-[var(--text-muted)]')} title="Recherche vocale">
               <Mic className="w-4 h-4" />
             </button>
-            <button onClick={() => setShowFilters(!showFilters)} className={cn('w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center transition-colors', showFilters || filters.language || filters.category ? 'bg-[var(--gold)]/10 text-[var(--gold)]' : 'hover:bg-[var(--surface-hover)] text-[var(--text-muted)]')} title="Filtres">
+            <button onClick={() => setShowFilters(!showFilters)} className={cn('w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center transition-colors', showFilters || filters.language ? 'bg-[var(--gold)]/10 text-[var(--gold)]' : 'hover:bg-[var(--surface-hover)] text-[var(--text-muted)]')} title="Filtres">
               <Filter className="w-4 h-4" />
             </button>
             <button onClick={() => handleSearch()} disabled={loading || !query.trim()} className="bd-btn-primary h-10 px-5 mx-1">
@@ -199,14 +197,7 @@ export default function SearchPage() {
                         {languages.map((l) => <option key={l} value={l}>{l}</option>)}
                       </select>
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">Categorie</label>
-                      <select value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value })} className="bd-select !w-40">
-                        <option value="">Toutes</option>
-                        {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                    </div>
-                    {(filters.language || filters.category) && (
+                    {filters.language && (
                       <button onClick={() => setFilters({ language: '', category: '' })} className="flex items-center gap-1.5 px-3 py-2.5 text-sm text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors rounded-[var(--radius-md)] hover:bg-[var(--danger)]/5">
                         <X className="w-4 h-4" /> Reinitialiser
                       </button>
@@ -302,7 +293,7 @@ export default function SearchPage() {
                                 </button>
 
                                 <button onClick={() => handleSaveFavorite(result)} className={cn('flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium border rounded-[var(--radius-sm)] transition-all', savedFavId === (result.id || result.name) ? 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/30' : 'bg-[var(--surface-alt)] hover:bg-[var(--warning)]/10 text-[var(--text-secondary)] hover:text-[var(--warning)] border-[var(--border)] hover:border-[var(--warning)]/30')}>
-                                  {savedFavId === (result.id || result.name) ? <><Star className="w-3.5 h-3.5 fill-current" /> Sauvegarde {'\u2713'}</> : <><BookmarkPlus className="w-3.5 h-3.5" /> Sauvegarder</>}
+                                  {savedFavId === (result.id || result.name) ? <><Star className="w-3.5 h-3.5 fill-current" /> Sauvegarde ✓</> : <><BookmarkPlus className="w-3.5 h-3.5" /> Sauvegarder</>}
                                 </button>
 
                                 <a href="/favorites" className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium bg-[var(--surface-alt)] hover:bg-[var(--primary)]/10 text-[var(--text-secondary)] hover:text-[var(--primary)] border border-[var(--border)] hover:border-[var(--primary)]/30 rounded-[var(--radius-sm)] transition-all">
@@ -350,3 +341,4 @@ export default function SearchPage() {
     </PageLayout>
   );
 }
+

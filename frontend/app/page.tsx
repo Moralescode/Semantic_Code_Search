@@ -110,6 +110,7 @@ export default function LandingPage() {
               <button onClick={() => scrollTo('features')} className="bd-btn-ghost text-sm">Fonctionnalités</button>
               <button onClick={() => scrollTo('how-it-works')} className="bd-btn-ghost text-sm">Comment ça marche</button>
               <button onClick={() => scrollTo('testimonials')} className="bd-btn-ghost text-sm">Témoignages</button>
+              <button onClick={() => scrollTo('pricing')} className="bd-btn-ghost text-sm text-[var(--gold)]">Tarifs</button>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => scrollTo('auth-section')} className="hidden md:inline-flex bd-btn-primary text-sm">Commencer</button>
@@ -123,8 +124,9 @@ export default function LandingPage() {
           <div className="md:hidden border-t border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-2">
             <button onClick={() => { scrollTo('features'); setMobileMenu(false); }} className="block w-full text-left px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] text-sm">Fonctionnalités</button>
             <button onClick={() => { scrollTo('how-it-works'); setMobileMenu(false); }} className="block w-full text-left px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] text-sm">Comment ça marche</button>
-            <button onClick={() => { scrollTo('testimonials'); setMobileMenu(false); }} className="block w-full text-left px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] text-sm">Témoignages</button>
-            <button onClick={() => { scrollTo('auth-section'); setMobileMenu(false); }} className="bd-btn-primary w-full justify-center mt-2">Commencer</button>
+             <button onClick={() => { scrollTo('testimonials'); setMobileMenu(false); }} className="block w-full text-left px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] text-sm">Témoignages</button>
+             <button onClick={() => { scrollTo('pricing'); setMobileMenu(false); }} className="block w-full text-left px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--surface-hover)] text-sm text-[var(--gold)]">Tarifs</button>
+             <button onClick={() => { scrollTo('auth-section'); setMobileMenu(false); }} className="bd-btn-primary w-full justify-center mt-2">Commencer</button>
           </div>
         )}
       </nav>
@@ -279,6 +281,73 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="py-20 bg-[var(--surface-alt)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-3">Des tarifs simples et transparents</h2>
+            <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">Essai gratuit de <strong>2 jours</strong>, puis choisissez le plan adapté à votre équipe.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Mensuel */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bd-card p-8 flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-[var(--primary)] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-[var(--radius-lg)]">Populaire</div>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Mensuel</h3>
+              <p className="text-sm text-[var(--text-secondary)] mb-6">Flexibilité, sans engagement.</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-[var(--text-primary)]">200 000</span>
+                <span className="text-lg text-[var(--text-secondary)]"> FCFA<span className="text-sm">/mois</span></span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  'Tous les outils IA inclus',
+                  'Recherche sémantique illimitée',
+                  'CoPilot RAG connecté à FAISS',
+                  'Support par email',
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-[var(--text-secondary)]">
+                    <div className="w-5 h-5 rounded-full bg-[var(--success)]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-[var(--success)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full bd-btn-secondary justify-center">Commencer l&apos;essai gratuit</button>
+            </motion.div>
+
+            {/* Annuel */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bd-card p-8 flex flex-col relative overflow-hidden border-2 border-[var(--gold)]">
+              <div className="absolute top-0 right-0 gradient-gold text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-[var(--radius-lg)]">Économie 17%</div>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Annuel</h3>
+              <p className="text-sm text-[var(--text-secondary)] mb-6">Idéal pour les équipes stabilisées.</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-[var(--text-primary)]">2 000 000</span>
+                <span className="text-lg text-[var(--text-secondary)]"> FCFA<span className="text-sm">/an</span></span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  'Tout le plan Mensuel',
+                  'Priorité sur les nouveautés IA',
+                  'API dédiée & webhooks',
+                  'Support prioritaire 7j/7',
+                  'Sauvegarde & conformité renforcées',
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-[var(--text-secondary)]">
+                    <div className="w-5 h-5 rounded-full bg-[var(--gold)]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-[var(--gold)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full bd-btn-primary justify-center">Essai gratuit 2 jours</button>
+            </motion.div>
+          </div>
+          <p className="text-center text-xs text-[var(--text-muted)] mt-8">Après l&apos;essai de 2 jours, le plan choisi est automatiquement activé. Annulation possible à tout moment.</p>
         </div>
       </section>
 

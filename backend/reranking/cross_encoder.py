@@ -38,15 +38,20 @@ class CodeCrossEncoder:
         et la similarité textuelle locale (Jaccard + cosinus approché).
         Garantit des résultats cohérents en micro-secondes sans consommer de mémoire.
         """
-        query_words = set(query.lower().split())
-        doc_words = set(candidate_docstring.lower().split())
-        code_words = set(candidate_code.lower().split())
+        import unicodedata
+        def normalize(text: str) -> str:
+            text = text.lower()
+            text = unicodedata.normalize('NFD', text)
+            text = ''.join(c for c in text if unicodedata.category(c) != 'Mn')
+            return text
         
-        # Intersection de mots avec la docstring et le code
+        query_words = set(normalize(query).split())
+        doc_words = set(normalize(candidate_docstring).split())
+        code_words = set(normalize(candidate_code).split())
+        
         jaccard_doc = len(query_words.intersection(doc_words)) / max(len(query_words.union(doc_words)), 1)
         jaccard_code = len(query_words.intersection(code_words)) / max(len(query_words.union(code_words)), 1)
         
-        # Score hybride (la docstring a plus d'importance pour les requêtes sémantiques)
         score = (jaccard_doc * 0.7) + (jaccard_code * 0.3)
         return float(score)
 

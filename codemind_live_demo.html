@@ -121,6 +121,12 @@
         .badge-a { background-color: #ecfdf5; color: #047857; border-color: #a7f3d0; }
         .badge-c { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
         .badge-d { background-color: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+        .badge-py { background-color: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+        .badge-js { background-color: #fef3c7; color: #92400e; border-color: #fcd34d; }
+        .badge-go { background-color: #e0e7ff; color: #3730a3; border-color: #a5b4fc; }
+        .badge-java { background-color: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
+        .badge-php { background-color: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+        .badge-ruby { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
         .auth-overlay {
             position: fixed;
@@ -338,6 +344,10 @@
                             <select id="gen-lang" class="w-full px-4 py-2 border border-gray-200 rounded-lg outline-none focus:border-black bg-white">
                                 <option value="Python">Python 🐍</option>
                                 <option value="JavaScript">JavaScript 🟨</option>
+                                <option value="Go">Go 🔵</option>
+                                <option value="Java">Java ☕</option>
+                                <option value="PHP">PHP 🐘</option>
+                                <option value="Ruby">Ruby 💎</option>
                             </select>
                         </div>
                         <button class="btn-next w-full" onclick="generateCodeAI()">🚀 Générer la fonction</button>
@@ -375,8 +385,8 @@
                     </div>
                     <div class="kpi-card next-card">
                         <h3>Langages</h3>
-                        <h2>2</h2>
-                        <p>Python / JS</p>
+                        <h2>6</h2>
+                        <p>Python / JS / Go / Java / PHP / Ruby</p>
                     </div>
                     <div class="kpi-card next-card">
                         <h3>Latence Moyenne</h3>
@@ -547,7 +557,11 @@
                 score: 0.9854,
                 explanation: "Cette fonction valide un numéro de téléphone mobile en Côte d'Ivoire conformément à la réglementation de l'ARTCI à 10 chiffres.",
                 python_code: "def validate_ci_phone_number(phone_str: str) -> bool:\n    import re\n    cleaned = re.sub(r'\\s+|-', '', phone_str)\n    pattern = r'^(?:\\+225|225)?(01|05|07)\\d{8}$'\n    return bool(re.match(pattern, cleaned))",
-                javascript_code: "function validate_ci_phone_number(phone_str) {\n  const cleaned = phone_str.replace(/\\s+|-/g, '');\n  const pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/;\n  return pattern.test(cleaned);\n}"
+                javascript_code: "function validateCIPhone(phoneStr) {\n  const cleaned = phoneStr.replace(/\\s+|-/g, '');\n  const pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/;\n  return pattern.test(cleaned);\n}",
+                go_code: "func ValidateCIPhone(phoneStr string) bool {\n    re := regexp.MustCompile(`^(?:\\+225|225)?(01|05|07)\\d{8}$`)\n    cleaned := strings.NewReplacer(\" \", \"\", \"-\", \"\").Replace(phoneStr)\n    return re.MatchString(cleaned)\n}",
+                java_code: "public boolean validateCIPhone(String phoneStr) {\n    String cleaned = phoneStr.replaceAll(\"\\\\s+|-", \"\");\n    String pattern = \"^(?:\\\\+225|225)?(01|05|07)\\\\d{8}$\";\n    return cleaned.matches(pattern);\n}",
+                php_code: "function validateCIPhone(string $phoneStr): bool {\n    $cleaned = preg_replace('/\\s+|-/', '', $phoneStr);\n    return preg_match('/^(?:\\+225|225)?(01|05|07)\\d{8}$/', $cleaned) === 1;\n}",
+                ruby_code: "def validate_ci_phone(phone_str)\n    cleaned = phone_str.gsub(/\\s+|-/, '')\n    pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/\n    cleaned.match?(pattern)\nend"
             },
             {
                 name: "calculate_ci_tva",
@@ -557,7 +571,11 @@
                 score: 0.9125,
                 explanation: "Calcule la TVA au taux de 18% légal en Côte d'Ivoire.",
                 python_code: "def calculate_ci_tva(amount_ht: float) -> float:\n    TVA_RATE = 0.18\n    return round(amount_ht * TVA_RATE, 2)",
-                javascript_code: "function calculate_ci_tva(amount_ht) {\n  const TVA_RATE = 0.18;\n  return Number((amount_ht * TVA_RATE).toFixed(2));\n}"
+                javascript_code: "function calculateCIVAT(amountHT) {\n  const VAT_RATE = 0.18;\n  return Number((amountHT * VAT_RATE).toFixed(2));\n}",
+                go_code: "func CalculateCIVAT(amountHT float64) float64 {\n    const vatRate = 0.18\n    return math.Round(amountHT*vatRate*100) / 100\n}",
+                java_code: "public double calculateCIVAT(double amountHT) {\n    final double VAT_RATE = 0.18;\n    return Math.round(amountHT * VAT_RATE * 100.0) / 100.0;\n}",
+                php_code: "function calculateCIVAT(float $amountHT): float {\n    $vatRate = 0.18;\n    return round($amountHT * $vatRate, 2);\n}",
+                ruby_code: "def calculate_ci_tva(amount_ht)\n    vat_rate = 0.18\n    (amount_ht * vat_rate).round(2)\nend"
             },
             {
                 name: "format_currency_xof",
@@ -567,7 +585,11 @@
                 score: 0.8950,
                 explanation: "Formateur pour les Francs CFA (XOF) conforme aux standards d'Afrique de l'Ouest.",
                 python_code: "def format_currency_xof(amount: float) -> str:\n    rounded = int(round(amount))\n    return f\"{rounded:,}\".replace(\",\", \" \") + \" FCFA\"",
-                javascript_code: "function format_currency_xof(amount) {\n  const rounded = Math.round(amount);\n  return new Intl.NumberFormat('fr-CI', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(rounded);\n}"
+                javascript_code: "function formatXOF(amount) {\n  const rounded = Math.round(amount);\n  return new Intl.NumberFormat('fr-CI', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(rounded);\n}",
+                go_code: "func FormatCurrencyXOF(amount float64) string {\n    rounded := int64(math.Round(amount))\n    return fmt.Sprintf(\"%d FCFA\", rounded)\n}",
+                java_code: "public String formatCurrencyXOF(double amount) {\n    long rounded = Math.round(amount);\n    NumberFormat nf = NumberFormat.getInstance(Locale.FRENCH);\n    nf.setMaximumFractionDigits(0);\n    nf.setGroupingUsed(true);\n    return nf.format(rounded) + \" FCFA\";\n}",
+                php_code: "function formatCurrencyXOF(float $amount): string {\n    $rounded = (int) round($amount);\n    return number_format($rounded, 0, ',', ' ') . ' FCFA';\n}",
+                ruby_code: "def format_currency_xof(amount)\n    rounded = amount.round\n    formatted = rounded.to_s.reverse.gsub(/(\\d{3})(?=\\d)/, '\\\\1 ').reverse\n    \"#{formatted} FCFA\"\nend"
             }
         ];
 
@@ -786,9 +808,9 @@
             }
 
             filtered.forEach((func, idx) => {
-                const badgeClass = func.language === 'python' ? 'badge-py' : 'badge-js';
-                const langLabel = func.language === 'python' ? '🐍 Python' : '🟨 JavaScript';
-                const targetLang = func.language === 'python' ? 'JavaScript' : 'Python';
+                const badgeClass = func.language === 'python' ? 'badge-py' : func.language === 'javascript' ? 'badge-js' : func.language === 'go' ? 'badge-go' : func.language === 'java' ? 'badge-java' : func.language === 'php' ? 'badge-php' : func.language === 'ruby' ? 'badge-ruby' : 'badge-next';
+                const langLabel = func.language === 'python' ? '🐍 Python' : func.language === 'javascript' ? '🟨 JavaScript' : func.language === 'go' ? '🔵 Go' : func.language === 'java' ? '☕ Java' : func.language === 'php' ? '🐘 PHP' : func.language === 'ruby' ? '💎 Ruby' : func.language;
+                const targetLang = getTargetLanguage(func.language);
 
                 container.innerHTML += `
                     <div class="next-card p-6 mb-4">
@@ -804,7 +826,7 @@
                         <div class="result-actions">
                             <button class="action-btn" onclick="toggleFavorite('${func.name}')">⭐ Favori</button>
                             <button class="action-btn" onclick="toggleAIExplain(${idx})">📘 Expliquer (IA)</button>
-                            <button class="action-btn" onclick="translateCode(${idx}, '${func.language}', '${targetLang}')">🔄 Traduire en ${targetLang} (IA)</button>
+                            <button class="action-btn" onclick="translateCode(${idx}, '${func.language}', '${targetLang}')">🔄 Traduire en ${getLanguageLabel(targetLang)} (IA)</button>
                             <button class="action-btn" onclick="auditSecurity(${idx}, '${func.language}')">🛡️ Auditer (IA)</button>
                             <button class="action-btn" onclick="optimizeComplexity(${idx})">⚡ Optimiser (IA)</button>
                             <button class="action-btn" onclick="generateDocstring(${idx})">📝 Docstring (IA)</button>
@@ -856,6 +878,16 @@
             });
         }
 
+        function getTargetLanguage(source) {
+            const targets = { python: 'javascript', javascript: 'python', go: 'java', java: 'go', php: 'ruby', ruby: 'php' };
+            return targets[source] || 'python';
+        }
+
+        function getLanguageLabel(lang) {
+            const labels = { python: 'Python', javascript: 'JavaScript', go: 'Go', java: 'Java', php: 'PHP', ruby: 'Ruby' };
+            return labels[lang] || lang;
+        }
+
         function filterCorpus(query) {
             const q = query.toLowerCase();
             if (q.includes('phone') || q.includes('téléphone') || q.includes('numéro') || q.includes('telefono') || q.includes('validar')) {
@@ -877,13 +909,18 @@
         function translateCode(idx, source, target) {
             const block = document.getElementById('code-block-' + idx);
             const func = CORPUS[idx];
-            if (target === 'JavaScript') {
-                block.innerText = func.javascript_code;
-                block.style.borderColor = "var(--warning)";
-            } else {
-                block.innerText = func.python_code;
-                block.style.borderColor = "var(--next-blue)";
-            }
+            const targetLower = target.toLowerCase();
+            const codeMap = {
+                python: func.python_code,
+                javascript: func.javascript_code,
+                go: func.go_code,
+                java: func.java_code,
+                php: func.php_code,
+                ruby: func.ruby_code
+            };
+            const translated = codeMap[targetLower] || func.code;
+            block.innerText = translated;
+            block.style.borderColor = "var(--warning)";
             alert(`Code converti en ${target} par l'IA !`);
         }
 
@@ -955,27 +992,23 @@
             const out = document.getElementById('gen-output-container');
             out.style.display = 'block';
 
-            if (desc.toLowerCase().includes('otp') || desc.toLowerCase().includes('code')) {
-                document.getElementById('gen-name').innerText = lang === 'Python' ? 'generate_numeric_otp' : 'generateNumericOtp';
-                document.getElementById('gen-doc').innerText = "Génère un code OTP numérique aléatoire à 6 chiffres pour les validations par SMS de NexaTech Money.";
-                document.getElementById('gen-code').innerText = lang === 'Python' ? 
-`def generate_numeric_otp() -> str:
-    import random
-    return "".join(str(random.randint(0, 9)) for _ in range(6))` :
-`function generateNumericOtp() {
-  return Array.from({length: 6}, () => Math.floor(Math.random() * 10)).join('');
-}`;
-            } else {
-                document.getElementById('gen-name').innerText = lang === 'Python' ? 'encode_base64' : 'encodeBase64';
-                document.getElementById('gen-doc').innerText = "Encodeur base64 pour chaînes de caractères de NexaTech Solutions.";
-                document.getElementById('gen-code').innerText = lang === 'Python' ?
-`def encode_base64(text: str) -> str:
-    import base64
-    return base64.b64encode(text.encode('utf-8')).decode('utf-8')` :
-`function encodeBase64(text) {
-  return Buffer.from(text, 'utf-8').toString('base64');
-}`;
-            }
+            const codeSnippets = {
+                'Python': { otp: `def generate_numeric_otp() -> str:\n    import random\n    return "".join(str(random.randint(0, 9)) for _ in range(6))`, base64: `def encode_base64(text: str) -> str:\n    import base64\n    return base64.b64encode(text.encode('utf-8')).decode('utf-8')`, name: 'generate_numeric_otp' },
+                'JavaScript': { otp: `function generateNumericOtp() {\n  return Array.from({length: 6}, () => Math.floor(Math.random() * 10)).join('');\n}`, base64: `function encodeBase64(text) {\n  return Buffer.from(text, 'utf-8').toString('base64');\n}`, name: 'generateNumericOtp' },
+                'Go': { otp: `func GenerateNumericOtp() string {\n    otp := make([]string, 6)\n    for i := range otp {\n        otp[i] = strconv.Itoa(rand.Intn(10))\n    }\n    return strings.Join(otp, "")\n}`, base64: `func EncodeBase64(text string) string {\n    return base64.StdEncoding.EncodeToString([]byte(text))\n}`, name: 'GenerateNumericOtp' },
+                'Java': { otp: `public String generateNumericOtp() {\n    StringBuilder otp = new StringBuilder();\n    Random rand = new Random();\n    for (int i = 0; i < 6; i++) {\n        otp.append(rand.nextInt(10));\n    }\n    return otp.toString();\n}`, base64: `public String encodeBase64(String text) {\n    return Base64.getEncoder().encodeToString(text.getBytes(StandardCharsets.UTF_8));\n}`, name: 'generateNumericOtp' },
+                'PHP': { otp: `function generate_numeric_otp(): string {\n    $otp = '';\n    for ($i = 0; $i < 6; $i++) {\n        $otp .= random_int(0, 9);\n    }\n    return $otp;\n}`, base64: `function encode_base64(string $text): string {\n    return base64_encode($text);\n}`, name: 'generate_numeric_otp' },
+                'Ruby': { otp: `def generate_numeric_otp\n    Array.new(6) { rand(10) }.join\nend`, base64: `def encode_base64(text)\n    Base64.strict_encode64(text)\nend`, name: 'generate_numeric_otp' }
+            };
+
+            const isOtp = desc.toLowerCase().includes('otp') || desc.toLowerCase().includes('code');
+            const snippet = isOtp ? codeSnippets[lang].otp : codeSnippets[lang].base64;
+            const name = codeSnippets[lang].name;
+            const doc = isOtp ? "Génère un code OTP numérique aléatoire à 6 chiffres pour les validations par SMS de NexaTech Money." : "Encodeur base64 pour chaînes de caractères de NexaTech Solutions.";
+
+            document.getElementById('gen-name').innerText = name;
+            document.getElementById('gen-doc').innerText = doc;
+            document.getElementById('gen-code').innerText = snippet;
         }
 
         function indexGeneratedCode() {
@@ -984,7 +1017,7 @@
             const code = document.getElementById('gen-code').innerText;
             const lang = document.getElementById('gen-lang').value.toLowerCase();
 
-            CORPUS.push({
+            const entry = {
                 name: name,
                 language: lang,
                 docstring: doc,
@@ -992,8 +1025,14 @@
                 score: 0.9999,
                 explanation: "Fonction indexée à chaud par l'IA !",
                 python_code: code,
-                javascript_code: code
-            });
+                javascript_code: code,
+                go_code: code,
+                java_code: code,
+                php_code: code,
+                ruby_code: code
+            };
+
+            CORPUS.push(entry);
 
             document.getElementById('kpi-functions').innerText = CORPUS.length + 97;
             alert(`🎉 Succès ! La fonction ${name} a été compilée, encodée en embeddings et injectée dans l'index FAISS local.`);

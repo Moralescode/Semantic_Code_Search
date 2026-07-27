@@ -34,10 +34,10 @@ cross_encoder:
   fallback_model_name: "prajjwal1/bert-tiny"
 
 llm:
-  provider: "ollama" # Options: "mock", "openai", "deepseek", "ollama", "qwen"
+  provider: "mock" # Options: "mock", "openai", "deepseek", "gemini", "ollama", "qwen"
   api_key: ""
-  base_url: "http://localhost:11434"
-  model_name: "codellama:7b"
+  base_url: ""
+  model_name: "gemini-2.0-flash"
   temperature: 0.3
   max_tokens: 1024
 

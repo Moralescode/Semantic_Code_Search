@@ -145,8 +145,9 @@ class CodeSearchEngine:
             
             # Formatage de retour standardisé
             formatted_results = []
-            for meta, score in reranked_results:
+            for idx, (meta, score) in enumerate(reranked_results):
                 formatted_results.append({
+                    "id": meta.get("name") or f"result_{idx}",
                     "name": meta.get("name"),
                     "language": meta.get("language"),
                     "docstring": meta.get("docstring"),
@@ -158,8 +159,9 @@ class CodeSearchEngine:
         else:
             # Sans Reranking : on prend simplement les premiers selon FAISS
             formatted_results = []
-            for meta, score in filtered_candidates[:top_k]:
+            for idx, (meta, score) in enumerate(filtered_candidates[:top_k]):
                 formatted_results.append({
+                    "id": meta.get("name") or f"result_{idx}",
                     "name": meta.get("name"),
                     "language": meta.get("language"),
                     "docstring": meta.get("docstring"),

@@ -10,6 +10,7 @@ OpenAPI/Swagger, et gère un chatbot interactif de dépôt (CoPilot RAG) avec co
 import os
 import yaml
 import json
+import re
 from openai import OpenAI
 
 class CodeExplainer:
@@ -32,8 +33,8 @@ class CodeExplainer:
         Genere une explication locale, detaillee et contextualisee pour NexaTech Solutions.
         """
         lines = code.split('\n')
-        nb_lines = len(lines)
-        imports = [line.strip() for line in lines if "import " in line or "require(" in line]
+        nb_lines = len([l for l in lines if l.strip()])
+        imports = [line.strip() for line in lines if "import " in line or "require(" in line or "func " in line or "def " in line or "function " in line or "public " in line]
         import_str = f"Bibliotheques utilisees : `{', '.join(imports)}`" if imports else "Aucune dependance externe requise."
 
         ci_phone_context = ""
@@ -59,22 +60,42 @@ class CodeExplainer:
                 "de nos applications mobiles de paiement."
             )
 
+        line_explanations = []
+        for i, line in enumerate(lines, 1):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith('import ') or stripped.startswith('from '):
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Import d'un module necessaire pour la logique de la fonction.")
+            elif stripped.startswith('def ') or stripped.startswith('function ') or stripped.startswith('func ') or stripped.startswith('public ') or stripped.startswith('private '):
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Declaration de la fonction avec ses parametres.")
+            elif 'return' in stripped:
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Retourne le resultat final calcule ou teste.")
+            elif 'if ' in stripped or 'elif ' in stripped or 'else:' in stripped:
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Condition de controle pour gerer les cas particuliers.")
+            elif 'import' in stripped or 'require' in stripped:
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Chargement d'une bibliotheque externe.")
+            elif '=' in stripped and not '==' in stripped:
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Affectation d'une variable ou d'une constante.")
+            elif stripped.startswith('#'):
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Commentaire explicatif du code.")
+            else:
+                line_explanations.append(f"**Ligne {i}** : `{stripped}` - Instruction de traitement ou de transformation des donnees.")
+
+        line_by_line = "\n".join(line_explanations) if line_explanations else "Le code est structur en une seule ligne executable."
+
         explanation = f"""### Explication IA de la fonction `{func_name}` ({language.capitalize()})
 
 {ci_phone_context or tva_context or currency_context or "**Contexte de la fonction :** Cette fonction est un utilitaire reutilisable extrait du corpus de NexaTech Solutions."}
 
 #### Analyse Technique
 - **Nom de la fonction** : `{func_name}`
-- **Nombre de lignes** : {nb_lines} lignes de code.
+- **Nombre de lignes** : {nb_lines} lignes de code effectives.
 - **Dependances** : {import_str}
 - **Role decrit (Docstring)** : *"{docstring or 'Aucune description disponible'}"*
 
-#### Analyse detaillee du fonctionnement :
-1. **Initialisation** : La fonction prend en parametre les variables necessaires et effectue un nettoyage ou une preparation des entrees (comme la suppression des caracteres speciaux ou d'espaces).
-2. **Logique Principale** : 
-   - Elle execute une logique dediee (validation regex, calcul de taux, ou parsing structure).
-   - En cas d'erreur de conversion ou de formatage, des blocs de securite (`try...except` ou validations conditionnelles) sont appliques.
-3. **Resultat** : Elle renvoie une valeur propre et normalisee (booleen, chaine formatee, ou dictionnaire JSON de donnees financieres).
+#### Explication ligne par ligne
+{line_by_line}
 
 #### Recommandations de Securite & Performance :
 - **Validation** : Toujours nettoyer les entrees utilisateur avant de les passer a cette fonction pour eviter les injections de caracteres ou les bugs de type.
@@ -148,7 +169,7 @@ Code :
 \tconst vatRate = 0.18
 \treturn math.Round(amountHT*vatRate*100) / 100
 }"""
-            elif "currency" in code.lower() or "xof" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "go":
+            elif ("currency" in code.lower() or "xof" in code.lower()) and source_lang.lower() == "python" and target_lang.lower() == "go":
                 return """func FormatCurrencyXOF(amount float64) string {
 \t// Traduit de Python en Go par CodeMind IA
 \trounded := int64(math.Round(amount))
@@ -196,7 +217,7 @@ end"""
     (amount_ht * vat_rate).round(2)
 end"""
             else:
-                return f"// Traduction automatique (Simulee localement sans cle API)\n// Traduit depuis {source_lang} vers {target_lang}"
+                return f"// Traduction automatique (Simulee localement sans cle API)\n// Traduit depuis {source_lang} vers {target_lang}\n\n" + code
 
         prompt = f"""Tu es un traducteur de code expert. Convertis cette fonction ecrite en {source_lang} vers le langage {target_lang}.
 Retourne uniquement le code converti, propre et documente. Pas d'explications textuelles ou de bla-bla.
@@ -229,116 +250,299 @@ Code a traduire :
     cleaned = re.sub(r'\\s+|-', '', phoneStr)
     pattern = r'^(?:\\+225|225)?(01|05|07)\\d{8}$'
     return bool(re.match(pattern, cleaned))"""
+            if "tva" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "javascript":
+                return """function calculate_ci_tva(amount_ht) {
+  const TVA_RATE = 0.18;
+  return Number((amount_ht * TVA_RATE).toFixed(2));
+}"""
+            if "phone" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "go":
+                return """func ValidateCIPhone(phoneStr string) bool {
+\t// Traduit de Python en Go par CodeMind IA
+\tre := regexp.MustCompile(`^(?:\\+225|225)?(01|05|07)\\d{8}$`)
+\tcleaned := strings.NewReplacer(" ", "", "-", "").Replace(phoneStr)
+\treturn re.MatchString(cleaned)
+}"""
+            if "tva" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "go":
+                return """func CalculateCIVAT(amountHT float64) float64 {
+\t// Traduit de Python en Go par CodeMind IA
+\tconst vatRate = 0.18
+\treturn math.Round(amountHT*vatRate*100) / 100
+}"""
+            if ("currency" in code.lower() or "xof" in code.lower()) and source_lang.lower() == "python" and target_lang.lower() == "go":
+                return """func FormatCurrencyXOF(amount float64) string {
+\t// Traduit de Python en Go par CodeMind IA
+\trounded := int64(math.Round(amount))
+\treturn fmt.Sprintf("%d FCFA", rounded)
+}"""
+            if "phone" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "java":
+                return """public boolean validateCIPhone(String phoneStr) {
+    // Traduit de Python en Java par CodeMind IA
+    String cleaned = phoneStr.replaceAll("\\\\s+|-", "");
+    String pattern = "^(?:\\\\+225|225)?(01|05|07)\\\\d{8}$";
+    return cleaned.matches(pattern);
+}"""
+            if "tva" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "java":
+                return """public double calculateCIVAT(double amountHT) {
+    // Traduit de Python en Java par CodeMind IA
+    final double VAT_RATE = 0.18;
+    return Math.round(amountHT * VAT_RATE * 100.0) / 100.0;
+}"""
+            if "phone" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "php":
+                return """function validateCIPhone(string $phoneStr): bool {
+    // Traduit de Python en PHP par CodeMind IA
+    $cleaned = preg_replace('/\\s+|-/', '', $phoneStr);
+    return preg_match('/^(?:\\+225|225)?(01|05|07)\\d{8}$/', $cleaned) === 1;
+}"""
+            if "tva" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "php":
+                return """function calculateCIVAT(float $amountHT): float {
+    // Traduit de Python en PHP par CodeMind IA
+    $vatRate = 0.18;
+    return round($amountHT * $vatRate, 2);
+}"""
+            if "phone" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "ruby":
+                return """def validate_ci_phone(phone_str)
+    # Traduit de Python en Ruby par CodeMind IA
+    cleaned = phone_str.gsub(/\\s+|-/, '')
+    pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/
+    cleaned.match?(pattern)
+end"""
+            if "tva" in code.lower() and source_lang.lower() == "python" and target_lang.lower() == "ruby":
+                return """def calculate_ci_tva(amount_ht)
+    # Traduit de Python en Ruby par CodeMind IA
+    vat_rate = 0.18
+    (amount_ht * vat_rate).round(2)
+end"""
             return code
 
-    def _mock_generate_code(self, desc_lower: str, lang_lower: str, description: str, language: str) -> dict:
-        """Genere du code mock pour n'importe quel langage parmi les 6 supportes."""
-        if "base64" in desc_lower or "encode" in desc_lower:
-            if lang_lower == "python":
-                return {
-                    "name": "encode_base64",
-                    "docstring": "Encode une chaine de caracteres en base64 de maniere securisee.",
-                    "code": "def encode_base64(text: str) -> str:\n    import base64\n    text_bytes = text.encode('utf-8')\n    base64_bytes = base64.b64encode(text_bytes)\n    return base64_bytes.decode('utf-8')"
-                }
-            elif lang_lower == "go":
-                return {
-                    "name": "EncodeBase64",
-                    "docstring": "Encode a text string to base64.",
-                    "code": "func EncodeBase64(text string) string {\n    return base64.StdEncoding.EncodeToString([]byte(text))\n}"
-                }
-            elif lang_lower == "java":
-                return {
-                    "name": "encodeBase64",
-                    "docstring": "Encode a text string to base64.",
-                    "code": 'public String encodeBase64(String text) {\n    return Base64.getEncoder().encodeToString(text.getBytes(StandardCharsets.UTF_8));\n}'
-                }
-            elif lang_lower == "php":
-                return {
-                    "name": "encodeBase64",
-                    "docstring": "Encode une chaine en base64.",
-                    "code": "function encodeBase64(string $text): string {\n    return base64_encode($text);\n}"
-                }
-            elif lang_lower == "ruby":
-                return {
-                    "name": "encode_base64",
-                    "docstring": "Encodes a text string to base64.",
-                    "code": "def encode_base64(text)\n    Base64.encode64(text).strip\nend"
-                }
-            else:
-                return {
-                    "name": "encodeBase64",
-                    "docstring": "Encode a text string to base64 using Buffer or btoa.",
-                    "code": "function encodeBase64(text) {\n  return Buffer.from(text, 'utf-8').toString('base64');\n}"
-                }
-        elif "otp" in desc_lower or "sms" in desc_lower or "code" in desc_lower:
-            if lang_lower == "go":
-                return {
-                    "name": "GenerateNumericOTP",
-                    "docstring": "Generates a 6-digit numeric OTP code for NexaTech Money SMS validations.",
-                    "code": "func GenerateNumericOTP() string {\n    code := make([]byte, 6)\n    for i := range code {\n        code[i] = byte('0' + rand.Intn(10))\n    }\n    return string(code)\n}"
-                }
-            elif lang_lower == "java":
-                return {
-                    "name": "generateNumericOTP",
-                    "docstring": "Generates a 6-digit numeric OTP code for NexaTech Money SMS validations.",
-                    "code": "public String generateNumericOTP() {\n    Random rand = new Random();\n    StringBuilder sb = new StringBuilder();\n    for (int i = 0; i < 6; i++) {\n        sb.append(rand.nextInt(10));\n    }\n    return sb.toString();\n}"
-                }
-            elif lang_lower == "php":
-                return {
-                    "name": "generateNumericOTP",
-                    "docstring": "Genere un code OTP numerique a 6 chiffres pour les validations SMS NexaTech.",
-                    "code": "function generateNumericOTP(): string {\n    $code = '';\n    for ($i = 0; $i < 6; $i++) {\n        $code .= random_int(0, 9);\n    }\n    return $code;\n}"
-                }
-            elif lang_lower == "ruby":
-                return {
-                    "name": "generate_numeric_otp",
-                    "docstring": "Generates a 6-digit numeric OTP for NexaTech Money SMS validations.",
-                    "code": "def generate_numeric_otp\n    6.times.map { rand(0..9) }.join\nend"
-                }
-            else:
-                return {
-                    "name": "generate_numeric_otp",
-                    "docstring": "Genere un code OTP numerique a 6 chiffres pour les validations SMS de NexaTech Money.",
-                    "code": "def generate_numeric_otp() -> str:\n    import random\n    return \"\".join(str(random.randint(0, 9)) for _ in range(6))"
-                }
-        else:
-            if lang_lower == "python":
-                return {
-                    "name": "generated_utility_function",
-                    "docstring": f"Utilitaire genere automatiquement par CodeMind pour : {description}",
-                    "code": f"def generated_utility_function(x):\n    # {description}\n    return x"
-                }
-            elif lang_lower == "go":
-                return {
-                    "name": "GeneratedUtilityFunction",
-                    "docstring": f"Auto-generated utility by CodeMind for: {description}",
-                    "code": f"func GeneratedUtilityFunction(x interface{{}}) interface{{}} {{\n    // {description}\n    return x\n}}"
-                }
-            elif lang_lower == "java":
-                return {
-                    "name": "generatedUtilityFunction",
-                    "docstring": f"Auto-generated utility by CodeMind for: {description}",
-                    "code": f"public Object generatedUtilityFunction(Object x) {{\n    // {description}\n    return x;\n}}"
-                }
-            elif lang_lower == "php":
-                return {
-                    "name": "generatedUtilityFunction",
-                    "docstring": f"Utilitaire genere automatiquement par CodeMind pour : {description}",
-                    "code": f"function generatedUtilityFunction($x) {{\n    // {description}\n    return $x;\n}}"
-                }
-            elif lang_lower == "ruby":
-                return {
-                    "name": "generated_utility_function",
-                    "docstring": f"Auto-generated utility by CodeMind for: {description}",
-                    "code": f"def generated_utility_function(x)\n    # {description}\n    x\nend"
-                }
-            else:
-                return {
-                    "name": "generated_utility_function",
-                    "docstring": f"Utilitaire genere automatiquement par CodeMind pour : {description}",
-                    "code": f"function generated_utility_function(x) {{\n  // {description}\n  return x;\n}}"
-                }
+    def _mock_generate_code(self, desc: str, lang_lower: str, description: str, language: str) -> dict:
+        desc_lower = description.lower()
+        name = "generated_function"
+        for pattern in [r'fonction\s+(\w+)', r'function\s+(\w+)', r'def\s+(\w+)', r'calculer\s+la?\s+(\w+)', r'generer\s+un?\s+(\w+)', r'creer\s+un?\s+(\w+)', r'valider\s+un?\s+(\w+)', r'formater\s+un?\s+(\w+)', r'parser\s+un?\s+(\w+)']:
+            m = re.search(pattern, desc_lower)
+            if m:
+                candidate = m.group(1)
+                if candidate not in ('qui', 'une', 'un', 'des', 'les', 'le', 'la', 'de', 'du', 'au', 'aux', 'et', 'ou', 'sur', 'dans', 'par', 'avec', 'pour', 'a', 'son', 'sa', 'ses', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'notre', 'nos', 'votre', 'vos', 'leur', 'leurs'):
+                    name = candidate
+                    break
+        if name == "generated_function":
+            keywords = {
+                'tva': 'calculate_tva', 'tax': 'calculate_tax', 'telephone': 'validate_phone',
+                'phone': 'validate_phone', 'numero': 'validate_number', 'mobile': 'validate_mobile',
+                'xof': 'format_xof', 'franc': 'format_currency', 'cfa': 'format_currency',
+                'montant': 'format_amount', 'devise': 'format_currency', 'monnaie': 'format_currency',
+                'csv': 'parse_csv', 'json': 'parse_json', 'fichier': 'parse_file',
+                'date': 'parse_date', 'heure': 'parse_time', 'calendar': 'parse_calendar',
+                'chaine': 'manipulate_string', 'string': 'manipulate_string', 'texte': 'manipulate_text',
+                'reverse': 'reverse_string', 'palindrome': 'check_palindrome',
+                'moyenne': 'calculate_average', 'somme': 'calculate_sum', 'total': 'calculate_total',
+                'statistique': 'calculate_stats', 'median': 'calculate_median',
+                'liste': 'process_list', 'tableau': 'process_array', 'trier': 'sort_list',
+                'hmac': 'generate_hmac', 'signature': 'generate_signature'
+            }
+            for keyword, func_name in keywords.items():
+                if keyword in desc_lower:
+                    name = func_name
+                    break
+        name = re.sub(r'[^a-zA-Z0-9_]', '', name)
+        if not name:
+            name = "generated_function"
 
+        logic_type = "generic"
+        has_empty = False
+        return_type = "auto"
+        if any(w in desc_lower for w in ["tva","taxe","tax","impot","fiscal","dgi","facture","invoice","ht","ttc"]):
+            logic_type = "tax"
+        elif any(w in desc_lower for w in ["telephone","phone","numero","mobile","sms"]):
+            logic_type = "phone_validation"
+        elif any(w in desc_lower for w in ["monnaie","currency","devise","franc","cfa","xof","montant"]):
+            logic_type = "currency_format"
+        elif any(w in desc_lower for w in ["moyenne","average","mean","somme","sum","total","addition","calcul","math","statistique","median","variance","minimum","maximum","pourcentage","taux"]):
+            logic_type = "math_stats"
+        elif any(w in desc_lower for w in ["date","time","heure","jour","mois","annee","calendar"]):
+            logic_type = "datetime"
+        elif any(w in desc_lower for w in ["chaine","string","texte","text","reverse","palindrome","regex","pattern"]):
+            logic_type = "string_manip"
+        elif any(w in desc_lower for w in ["csv","json","parser","parse","fichier","file","lire","read"]):
+            logic_type = "parsing"
+        elif any(w in desc_lower for w in ["liste","list","tableau","array","trier","sort","filter","map","reduce"]):
+            logic_type = "list_ops"
+        if any(w in desc_lower for w in ["si la liste est vide","if empty","si vide","none","null","exception","erreur"]):
+            has_empty = True
+        if "moyenne" in desc_lower or "average" in desc_lower: return_type = "float"
+        elif "none" in desc_lower or "null" in desc_lower: return_type = "optional"
+        elif "bool" in desc_lower or "boolean" in desc_lower: return_type = "bool"
+
+        labels = {"math_stats":"Calcul mathematique/statistique","phone_validation":"Validation telephone","tax":"Calcul TVA","currency_format":"Formatage monnaie","string_manip":"Manipulation chaines","parsing":"Parsing fichier","list_ops":"Operations listes","datetime":"Dates","generic":"Utilitaire"}
+        doc = labels.get(logic_type, "Utilitaire") + " par CodeMind : " + description
+
+        if lang_lower == "python":
+            p = "x"
+            if logic_type == "math_stats" or logic_type == "list_ops": p = "nombres: list"
+            elif logic_type == "phone_validation": p = "phone_str: str"
+            elif logic_type in ("tax", "currency_format"): p = "montant: float"
+            elif logic_type in ("string_manip", "datetime", "parsing"): p = "texte: str"
+            cl = []
+            cl.append("def {}({}):".format(name, p))
+            cl.append("    \"\"\"")
+            cl.append("    " + description)
+            cl.append("")
+            cl.append("    Returns:")
+            if return_type != "auto":
+                cl.append("        " + return_type)
+            else:
+                cl.append("        Le resultat calcule")
+            cl.append("    \"\"\"")
+            if logic_type == "math_stats" and has_empty:
+                cl.append("    if not nombres:")
+                cl.append("        return None")
+                cl.append("")
+                cl.append("    total = sum(nombres)")
+                cl.append("    return total / len(nombres)")
+            elif logic_type == "phone_validation":
+                cl.append("    import re")
+                cl.append('    cleaned = re.sub(r\'[\\s+\\-]\', "", str(phone_str))')
+                cl.append("    pattern = r'^(?:\\+225|225)?(01|05|07)\\d{8}$'")
+                cl.append("    return bool(re.match(pattern, cleaned))")
+            elif logic_type == "tax":
+                cl.append("    TVA_RATE = 0.18")
+                cl.append("    return round(montant * TVA_RATE, 2)")
+            elif logic_type == "currency_format":
+                cl.append("    return f\"{montant:,.0f} FCFA\"")
+            elif logic_type == "string_manip":
+                cl.append("    return texte.strip().lower()")
+            elif logic_type == "list_ops":
+                cl.append("    return [e for e in nombres if e is not None]")
+            elif logic_type == "parsing":
+                cl.append("    import csv")
+                cl.append("    with open(texte, \"r\", encoding=\"utf-8\") as f:")
+                cl.append("        return list(csv.DictReader(f))")
+            elif logic_type == "datetime":
+                cl.append("    from datetime import datetime")
+                cl.append("    return datetime.strptime(texte, \"%Y-%m-%d\")")
+            else:
+                cl.append("    # " + description)
+                cl.append("    return x")
+            cl.append("")
+            cl.append("# Exemple d'utilisation :")
+            cl.append("# resultat = " + name + "(...)")
+            code_str = "\n".join(cl)
+        elif lang_lower == "javascript":
+            p = "x"
+            if logic_type == "math_stats" or logic_type == "list_ops": p = "nombres"
+            elif logic_type == "phone_validation": p = "phoneStr"
+            elif logic_type in ("tax", "currency_format"): p = "amountHT"
+            elif logic_type in ("string_manip", "datetime", "parsing"): p = "text"
+            code_lines = []
+            code_lines.append("function {}({}) {{".format(name, p))
+            code_lines.append("  // " + description)
+            if logic_type == "tax":
+                code_lines.append("  const TVA_RATE = 0.18;")
+                code_lines.append("  return Number((amountHT * TVA_RATE).toFixed(2));")
+            elif logic_type == "phone_validation":
+                code_lines.append("  const cleaned = phoneStr.replace(/\\s+|-/g, '');")
+                code_lines.append("  const pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/;")
+                code_lines.append("  return pattern.test(cleaned);")
+            elif logic_type == "currency_format":
+                code_lines.append("  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' }).format(amountHT);")
+            else:
+                code_lines.append("  return x;")
+            code_lines.append("}")
+            code_str = "\n".join(code_lines)
+        elif lang_lower == "go":
+            p = "x interface{}"
+            if logic_type == "math_stats" or logic_type == "list_ops": p = "nombres []float64"
+            elif logic_type == "phone_validation": p = "phoneStr string"
+            elif logic_type in ("tax", "currency_format"): p = "amountHT float64"
+            elif logic_type in ("string_manip", "datetime", "parsing"): p = "text string"
+            code_lines = []
+            code_lines.append("func {}({}) {{".format(name, p))
+            code_lines.append("\t// " + description)
+            if logic_type == "tax":
+                code_lines.append("\tconst vatRate = 0.18")
+                code_lines.append("\treturn math.Round(amountHT*vatRate*100) / 100")
+            elif logic_type == "phone_validation":
+                code_lines.append("\tre := regexp.MustCompile(`^(?:\\+225|225)?(01|05|07)\\d{8}$`)")
+                code_lines.append("\tcleaned := strings.NewReplacer(\" \", \"\", \"-\", \"\").Replace(phoneStr)")
+                code_lines.append("\treturn re.MatchString(cleaned)")
+            elif logic_type == "currency_format":
+                code_lines.append("\trounded := int64(math.Round(amountHT))")
+                code_lines.append("\treturn fmt.Sprintf(\"%d FCFA\", rounded)")
+            else:
+                code_lines.append("\treturn x")
+            code_lines.append("}")
+            code_str = "\n".join(code_lines)
+        elif lang_lower == "java":
+            p = "Object x"
+            if logic_type == "math_stats" or logic_type == "list_ops": p = "List<Double> nombres"
+            elif logic_type == "phone_validation": p = "String phoneStr"
+            elif logic_type in ("tax", "currency_format"): p = "double amountHT"
+            elif logic_type in ("string_manip", "datetime", "parsing"): p = "String text"
+            code_lines = []
+            code_lines.append("public class CodeMind {{")
+            code_lines.append("    public static {} {}({}) {{".format(
+                "boolean" if logic_type == "phone_validation" else "double" if logic_type in ("tax", "currency_format") else "String", name, p))
+            code_lines.append("        // " + description)
+            if logic_type == "tax":
+                code_lines.append("        final double VAT_RATE = 0.18;")
+                code_lines.append("        return Math.round(amountHT * VAT_RATE * 100.0) / 100.0;")
+            elif logic_type == "phone_validation":
+                code_lines.append("        String cleaned = phoneStr.replaceAll(\"\\\\s+|\", \"\");")
+                code_lines.append("        String pattern = \"^(?:\\\\+225|225)?(01|05|07)\\\\d{8}$\";")
+                code_lines.append("        return cleaned.matches(pattern);")
+            elif logic_type == "currency_format":
+                code_lines.append("        return String.format(\"%d FCFA\", (long) Math.round(amountHT));")
+            else:
+                code_lines.append("        return x;")
+            code_lines.append("    }")
+            code_lines.append("}")
+            code_str = "\n".join(code_lines)
+        elif lang_lower == "php":
+            p = "$x"
+            if logic_type == "math_stats" or logic_type == "list_ops": p = "array $nombres"
+            elif logic_type == "phone_validation": p = "string $phoneStr"
+            elif logic_type in ("tax", "currency_format"): p = "float $amountHT"
+            elif logic_type in ("string_manip", "datetime", "parsing"): p = "string $text"
+            code_lines = []
+            code_lines.append("<?php")
+            code_lines.append("function {}({}) {{".format(name, p))
+            code_lines.append("    // " + description)
+            if logic_type == "tax":
+                code_lines.append("    $vatRate = 0.18;")
+                code_lines.append("    return round($amountHT * $vatRate, 2);")
+            elif logic_type == "phone_validation":
+                code_lines.append("    $cleaned = preg_replace('/\\s+|-/', '', $phoneStr);")
+                code_lines.append("    return preg_match('/^(?:\\+225|225)?(01|05|07)\\d{8}$/', $cleaned) === 1;")
+            elif logic_type == "currency_format":
+                code_lines.append("    return number_format($amountHT, 0, ' ', ' ') . ' FCFA';")
+            else:
+                code_lines.append("    return $x;")
+            code_lines.append("}")
+            code_str = "\n".join(code_lines)
+        elif lang_lower == "ruby":
+            p = "x"
+            if logic_type == "math_stats" or logic_type == "list_ops": p = "nombres"
+            elif logic_type == "phone_validation": p = "phone_str"
+            elif logic_type in ("tax", "currency_format"): p = "amount_ht"
+            elif logic_type in ("string_manip", "datetime", "parsing"): p = "text"
+            code_lines = []
+            code_lines.append("def {}({})".format(name, p))
+            code_lines.append("  # " + description)
+            if logic_type == "tax":
+                code_lines.append("  vat_rate = 0.18")
+                code_lines.append("  (amount_ht * vat_rate).round(2)")
+            elif logic_type == "phone_validation":
+                code_lines.append("  cleaned = phone_str.gsub(/\\s+|-/, '')")
+                code_lines.append("  pattern = /^(?:\\+225|225)?(01|05|07)\\d{8}$/")
+                code_lines.append("  cleaned.match?(pattern)")
+            elif logic_type == "currency_format":
+                code_lines.append("  \"#{amount_ht.round} FCFA\"")
+            else:
+                code_lines.append("  x")
+            code_lines.append("end")
+            code_str = "\n".join(code_lines)
+        else:
+            code_str = "function " + name + "(" + p + ") {\n  // " + description + "\n  return x;\n}"
+        return {"name": name, "docstring": doc, "code": code_str}
     def generate_code(self, description: str, language: str) -> dict:
         """
         Genere une fonction complete documentee a partir d'une description naturelle.
