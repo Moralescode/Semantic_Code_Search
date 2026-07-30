@@ -7,7 +7,7 @@ Cette fiche présente les détails du jeu de données utilisé pour l'entraînem
 ## 1. Description du Jeu de Données
 Le jeu de données de CodeMind est un corpus hybride combinant des fonctions issues de **CodeSearchNet** (splits Python et JavaScript) et des fonctions utilitaires métier écrites sur-mesure pour correspondre au contexte de **NexaTech Solutions** (Abidjan, Côte d'Ivoire).
 
-- **Langages pris en charge** : Python (50%), JavaScript (50%)
+- **Langages pris en charge** : Python (30%), JavaScript (15%), Java (20%), Go (15%), Ruby (10%), PHP (10%)
 - **Taille totale** : 100 fonctions de démonstration hautement représentatives (MVP)
 - **Format** : Fichiers JSON Lines (`.jsonl`) stockés dans `data/processed_corpus.jsonl`
 

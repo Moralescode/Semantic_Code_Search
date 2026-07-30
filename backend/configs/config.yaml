@@ -1,7 +1,7 @@
 # CodeMind - Configuration Globale du Projet
 
 model:
-  base_model_name: "prajjwal1/bert-tiny"  # Modèle de base léger pour le hackathon MVP (repli possible sur d'autres modèles)
+  base_model_name: "prajjwal1/bert-tiny"
   finetuned_model_path: "models/saved_biencoder"
   use_lora: true
   lora_r: 8
@@ -34,22 +34,21 @@ cross_encoder:
   fallback_model_name: "prajjwal1/bert-tiny"
 
 llm:
-  provider: "mock" # Options: "mock", "openai", "deepseek", "gemini", "ollama", "qwen"
-  api_key: ""
+  provider: "openai"
+  api_key: "\${OPENAI_API_KEY}"
   base_url: ""
-  model_name: "gemini-2.0-flash"
+  model_name: "gpt-4o-mini"
   temperature: 0.3
   max_tokens: 1024
 
 elevenlabs:
-  api_key: "sk_1f6c1c6a6a13169750737700942c451b0a64241613585aa2"
+  api_key: "\${ELEVENLABS_API_KEY}"
   default_voice_id: "EXAVITQu4vrRV9E3zY0"
   model_id: "eleven_monolingual_v1"
   stability: 0.5
   similarity_boost: 0.75
   style: 0.3
   use_speaker_boost: true
-
 
 security:
   allowed_languages: ["python", "javascript", "go", "java", "php", "ruby"]
